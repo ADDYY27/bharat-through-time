@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, GeoJSON, Popup, CircleMarker, Marker } from "react-leaflet";
+import { useEffect, useRef, useState } from "react";
+import { MapContainer, TileLayer, GeoJSON, Popup, CircleMarker, Marker, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import LayerControl from "./LayerControl";
@@ -24,7 +24,30 @@ const EVENT_COLORS = {
   other: "#8a8578",
 };
 
-export default function HistoryMap({ year, onDataLoaded, onRulersLoaded, selectedPolityId, onSelectPolity, onYearChange, onSelectRuler }) {
+// Sub-component: watches mapFlyTo prop and calls map.flyTo when it changes
+function MapController({ mapFlyTo }) {
+  const map = useMap();
+  const prevTs = useRef(null);
+  useEffect(() => {
+    if (!mapFlyTo || !mapFlyTo.center) return;
+    if (mapFlyTo.ts === prevTs.current) return; // deduplicate
+    prevTs.current = mapFlyTo.ts;
+    map.flyTo(mapFlyTo.center, mapFlyTo.zoom || 7, { duration: 1.2 });
+  }, [map, mapFlyTo]);
+  return null;
+}
+
+export default function HistoryMap({
+  year,
+  onDataLoaded,
+  onRulersLoaded,
+  selectedPolityId,
+  onSelectPolity,
+  onYearChange,
+  onSelectRuler,
+  onSelectEntity, // NEW: for event/place navigation
+  mapFlyTo,       // NEW: { center: [lat,lng], zoom?, ts }
+}) {
   const [territories, setTerritories] = useState([]);
   const [events, setEvents] = useState([]);
   const [places, setPlaces] = useState([]);
@@ -71,6 +94,17 @@ export default function HistoryMap({ year, onDataLoaded, onRulersLoaded, selecte
       onSelectRuler(result); // carries jumpYear, polityId, and full ruler data together
       return;
     }
+    // Events: open event detail panel (data already embedded in search result)
+    if (result.kind === "event" && onSelectEntity) {
+      if (result.jumpYear && onYearChange) onYearChange(result.jumpYear);
+      onSelectEntity({ kind: "event", data: result.event });
+      return;
+    }
+    // Places: open place detail panel
+    if (result.kind === "place" && onSelectEntity) {
+      onSelectEntity({ kind: "place", data: result.placeData || { _id: result.id, name: result.label } });
+      return;
+    }
     if (result.jumpYear && onYearChange) {
       onYearChange(result.jumpYear);
     }
@@ -90,6 +124,7 @@ export default function HistoryMap({ year, onDataLoaded, onRulersLoaded, selecte
   return (
     <div className="relative w-full h-full">
       <MapContainer center={[20.5937, 78.9629]} zoom={5} className="w-full h-full">
+        <MapController mapFlyTo={mapFlyTo} />
         <TileLayer
           url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="&copy; OpenStreetMap contributors"

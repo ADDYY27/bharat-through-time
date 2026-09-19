@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import HistoryMap from "./components/HistoryMap";
 import Sidebar from "./components/Sidebar";
 import CompareView from "./components/CompareView";
@@ -11,12 +11,76 @@ function App() {
   const [territories, setTerritories] = useState([]);
   const [rulers, setRulers] = useState([]);
   const [selectedPolityId, setSelectedPolityId] = useState(null);
-  const [selectedRuler, setSelectedRuler] = useState(null); // full object, or null
+  const [selectedRuler, setSelectedRuler] = useState(null); // legacy: full object, or null
   const [compareMode, setCompareMode] = useState(false);
 
+  // ── Knowledge-graph navigation ──────────────────────────────────────────
+  // Each entry: { kind: 'polity'|'ruler'|'event'|'place', data: {...} }
+  const [selectedEntity, setSelectedEntity] = useState(null);
+  const [navStack, setNavStack] = useState([]);
+
+  // For "Explore on Map": { center: [lat, lng], zoom?: number }
+  const [mapFlyTo, setMapFlyTo] = useState(null);
+
+  function navigateTo(entity) {
+    // Push the current view onto the stack so Back works
+    setNavStack((prev) => {
+      const current = selectedEntity
+        || (selectedRuler ? { kind: "ruler", data: selectedRuler } : null)
+        || (selectedPolityId ? { kind: "polity_id", data: selectedPolityId } : null);
+      return current ? [...prev, current] : prev;
+    });
+    setSelectedEntity(entity);
+    // Clear legacy selection so we don't render double
+    setSelectedRuler(null);
+    setSelectedPolityId(null);
+  }
+
+  function navigateBack() {
+    if (navStack.length === 0) {
+      // Nothing on stack — go to the default list
+      setSelectedEntity(null);
+      setSelectedRuler(null);
+      setSelectedPolityId(null);
+      return;
+    }
+    const prev = navStack[navStack.length - 1];
+    const rest = navStack.slice(0, -1);
+    setNavStack(rest);
+
+    if (prev.kind === "polity_id") {
+      setSelectedEntity(null);
+      setSelectedRuler(null);
+      setSelectedPolityId(prev.data);
+    } else if (prev.kind === "ruler") {
+      setSelectedEntity(null);
+      setSelectedRuler(prev.data);
+      setSelectedPolityId(null);
+    } else {
+      setSelectedEntity(prev);
+      setSelectedRuler(null);
+      setSelectedPolityId(null);
+    }
+  }
+
+  function clearEntity() {
+    setSelectedEntity(null);
+    setSelectedRuler(null);
+    setSelectedPolityId(null);
+    setNavStack([]);
+  }
+
+  function exploreOnMap(coords, jumpYear) {
+    if (jumpYear) setYear(jumpYear);
+    if (coords) setMapFlyTo({ center: coords, ts: Date.now() });
+  }
+
+  // ── Legacy handlers (existing code, kept intact) ────────────────────────
   function selectPolity(id) {
     setSelectedPolityId(id);
-    setSelectedRuler(null); // clicking a territory always exits ruler-focus view
+    setSelectedRuler(null);
+    setSelectedEntity(null);
+    setNavStack([]);
   }
 
   function selectRuler(result) {
@@ -24,6 +88,8 @@ function App() {
     if (result.jumpYear) setYear(result.jumpYear);
     if (result.polityId) setSelectedPolityId(result.polityId);
     setSelectedRuler(result.ruler || null);
+    setSelectedEntity(null);
+    setNavStack([]);
   }
 
   return (
@@ -89,6 +155,8 @@ function App() {
               onSelectPolity={selectPolity}
               onYearChange={setYear}
               onSelectRuler={selectRuler}
+              onSelectEntity={navigateTo}
+              mapFlyTo={mapFlyTo}
             />
           </div>
           <Sidebar
@@ -98,6 +166,13 @@ function App() {
             selectedRuler={selectedRuler}
             onSelectPolity={selectPolity}
             onClearRuler={() => setSelectedRuler(null)}
+            // Knowledge-graph props
+            selectedEntity={selectedEntity}
+            navStack={navStack}
+            onNavigateTo={navigateTo}
+            onNavigateBack={navigateBack}
+            onClearEntity={clearEntity}
+            onExploreOnMap={exploreOnMap}
           />
         </main>
       )}

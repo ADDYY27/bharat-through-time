@@ -18,7 +18,7 @@ router.get("/", async (req, res) => {
         .populate("polity", "name colorHex")
         .populate("sources")
         .populate("places", "name type"),
-      Place.find({}, "name type modernState polities").populate("polities", "name"),
+      Place.find({}, "name type modernState polities location").populate("polities", "name colorHex"),
       Event.find({}, "title type year description outcome polities rulers place")
         .populate("polities", "name colorHex")
         .populate("rulers", "name")
@@ -88,6 +88,16 @@ router.get("/", async (req, res) => {
           sublabel: polityName ? `${polityName} · ${typeLabel}` : typeLabel,
           jumpYear: null,
           polityId: p.polities?.[0]?._id || null,
+          // Include full place data so the frontend can open a PlaceDetail
+          // without a separate API call (coordinates needed for Explore on Map)
+          placeData: {
+            _id: p._id,
+            name: p.name,
+            type: p.type,
+            modernState: p.modernState,
+            polities: p.polities,
+            location: p.location,
+          },
         };
       }),
       ...events.map((e) => ({
