@@ -103,6 +103,76 @@ router.get("/polity/:id", async (req, res) => {
 
 // ── Year-scoped history route ────────────────────────────────────────────────
 
+// GET /api/history/:year/overview — lightweight summary for Year Overview panel
+// Must be registered BEFORE /:year to avoid route conflict.
+router.get("/:year/overview", async (req, res) => {
+  const year = parseInt(req.params.year, 10);
+  if (isNaN(year)) return res.status(400).json({ error: "Invalid year" });
+
+  const EVENT_WINDOW = 18; // mirrors frontend constant
+
+  try {
+    // Active territories → active polity IDs
+    const territories = await Territory.find({
+      validFrom: { $lte: year },
+      validTo: { $gte: year },
+    }).populate("polity", "name colorHex type");
+
+    const polityIds = territories.map((t) => t.polity?._id).filter(Boolean);
+
+    // Active rulers: ruling one of the active polities AND reign covers this year
+    const rulers = await Ruler.find({
+      polity: { $in: polityIds },
+      reignStart: { $lte: year },
+      reignEnd: { $gte: year },
+    })
+      .select("name title reignStart reignEnd imageUrl polity")
+      .populate("polity", "name colorHex");
+
+    // Contextual events: belong to an active polity AND within EVENT_WINDOW of year
+    const contextualEvents = await Event.find({
+      polities: { $in: polityIds },
+      year: { $gte: year - EVENT_WINDOW, $lte: year + EVENT_WINDOW },
+    })
+      .select("title year type place rulers polities")
+      .populate("place", "name type")
+      .populate("rulers", "name title")
+      .populate("polities", "name colorHex");
+
+    // Tag each event: isExact = true when event.year === selected year
+    const events = contextualEvents.map((ev) => ({
+      ...ev.toObject(),
+      isExact: ev.year === year,
+    }));
+
+    // Total places count (all recorded places — not year-scoped)
+    const placeCount = await Place.countDocuments();
+
+    // Minimal polity list for the overview
+    const polities = territories.map((t) => ({
+      _id: t.polity._id,
+      name: t.polity.name,
+      colorHex: t.polity.colorHex,
+      type: t.polity.type,
+    }));
+
+    res.json({
+      year,
+      counts: {
+        polities: polities.length,
+        rulers: rulers.length,
+        events: events.length,
+        places: placeCount,
+      },
+      polities,
+      rulers,
+      events,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/history/:year
 router.get("/:year", async (req, res) => {
   const year = parseInt(req.params.year, 10);

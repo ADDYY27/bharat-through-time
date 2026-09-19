@@ -14,6 +14,7 @@ const EVENT_COLORS = {
 
 // ── Top-level Sidebar router ──────────────────────────────────────────────
 export default function Sidebar({
+  year,
   territories,
   rulers,
   selectedPolityId,
@@ -126,17 +127,181 @@ export default function Sidebar({
           onExploreOnMap={onExploreOnMap}
         />
       ) : (
-        <PolityList territories={territories} onSelectPolity={onSelectPolity} />
+        <PolityList
+          year={year}
+          territories={territories}
+          onSelectPolity={onSelectPolity}
+          onNavigateTo={onNavigateTo}
+        />
       )}
     </aside>
   );
 }
 
+// ── YearOverview ─────────────────────────────────────────────────────────
+function YearOverview({ year, onNavigateTo, onSelectPolity }) {
+  const [overview, setOverview] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!year) return;
+    setLoading(true);
+    setOverview(null);
+    fetch(`${API_BASE}/history/${year}/overview`)
+      .then((r) => r.json())
+      .then((d) => setOverview(d))
+      .catch(() => setOverview(null))
+      .finally(() => setLoading(false));
+  }, [year]);
+
+  if (loading) {
+    return (
+      <div className="px-6 pt-6 pb-4 border-b border-stone-800/70">
+        <p className="text-[10px] text-stone-600 tracking-[0.2em] uppercase animate-pulse">Loading {year}…</p>
+      </div>
+    );
+  }
+
+  if (!overview) return null;
+
+  const { counts, polities, rulers, events } = overview;
+
+  // Exact-year events first, then contextual (sorted by proximity)
+  const sortedEvents = [...(events || [])].sort((a, b) => {
+    if (a.isExact && !b.isExact) return -1;
+    if (!a.isExact && b.isExact) return 1;
+    return Math.abs(a.year - year) - Math.abs(b.year - year);
+  });
+
+  const exactEvents = sortedEvents.filter((e) => e.isExact);
+  const nearEvents = sortedEvents.filter((e) => !e.isExact);
+
+  return (
+    <div className="border-b border-stone-800/70">
+      {/* Year header + stat pills */}
+      <div className="px-6 pt-6 pb-5">
+        <div className="flex items-baseline gap-2 mb-4">
+          <span className="font-display text-[28px] text-amber-200/90 tabular-nums leading-none">{year}</span>
+          <span className="text-[10px] text-stone-600 tracking-[0.15em] uppercase">CE</span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { label: counts.polities === 1 ? "Power" : "Powers", value: counts.polities, color: "#d4a24c" },
+            { label: counts.rulers === 1 ? "Person" : "People", value: counts.rulers, color: "#9b7fb0" },
+            { label: counts.events === 1 ? "Event" : "Events", value: counts.events, color: "#c1666b" },
+            { label: "Places", value: counts.places, color: "#5b8fa8" },
+          ].map(({ label, value, color }) => (
+            <div
+              key={label}
+              className="rounded-md px-3 py-2.5 bg-stone-900/60 border border-stone-800/60 flex items-center gap-2"
+            >
+              <span
+                className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                style={{ backgroundColor: color }}
+              />
+              <span className="font-display text-[16px] text-stone-100 tabular-nums leading-none">{value}</span>
+              <span className="text-[10px] text-stone-500 tracking-wide leading-none">{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Key Events */}
+      {sortedEvents.length > 0 && (
+        <div className="px-6 pb-5">
+          <p className="text-[9.5px] text-stone-600 tracking-[0.22em] uppercase mb-2.5">Key Events</p>
+          <ul className="space-y-1">
+            {sortedEvents.slice(0, 6).map((ev) => (
+              <li key={ev._id}>
+                <button
+                  onClick={() => onNavigateTo?.({ kind: "event", data: ev })}
+                  className="w-full text-left flex items-start gap-2 py-1 group"
+                >
+                  <span
+                    className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-[5px]"
+                    style={{ backgroundColor: EVENT_COLORS[ev.type] || EVENT_COLORS.other }}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <span className="text-[12px] text-stone-300 group-hover:text-amber-200 transition-colors leading-snug">
+                      {ev.title}
+                    </span>
+                    {!ev.isExact && (
+                      <span className="ml-1.5 text-[9.5px] text-stone-600 tabular-nums">{ev.year}</span>
+                    )}
+                  </div>
+                  <span className="text-stone-700 group-hover:text-amber-500/50 text-[11px] flex-shrink-0 mt-px">→</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Active Powers */}
+      {polities && polities.length > 0 && (
+        <div className="px-6 pb-5">
+          <p className="text-[9.5px] text-stone-600 tracking-[0.22em] uppercase mb-2.5">Active Powers</p>
+          <ul className="space-y-1">
+            {polities.map((pol) => (
+              <li key={pol._id}>
+                <button
+                  onClick={() => onSelectPolity?.(pol._id)}
+                  className="w-full text-left flex items-center gap-2 py-0.5 group"
+                >
+                  <span
+                    className="w-2 h-2 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: pol.colorHex || "#8a8578" }}
+                  />
+                  <span className="text-[12px] text-stone-400 group-hover:text-amber-200 transition-colors">
+                    {pol.name}
+                  </span>
+                  <span className="ml-auto text-stone-700 group-hover:text-amber-500/50 text-[11px]">→</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Key Figures */}
+      {rulers && rulers.length > 0 && (
+        <div className="px-6 pb-6">
+          <p className="text-[9.5px] text-stone-600 tracking-[0.22em] uppercase mb-2.5">Key Figures</p>
+          <ul className="space-y-1">
+            {rulers.map((r) => (
+              <li key={r._id}>
+                <button
+                  onClick={() => onNavigateTo?.({ kind: "ruler", data: r })}
+                  className="w-full text-left flex items-center gap-2 py-0.5 group"
+                >
+                  <span className="text-stone-700 text-[10px] flex-shrink-0">👤</span>
+                  <div className="min-w-0 flex-1">
+                    <span className="text-[12px] text-stone-400 group-hover:text-amber-200 transition-colors">
+                      {r.name}
+                    </span>
+                    {r.polity?.name && (
+                      <span className="text-[9.5px] text-stone-700 ml-1.5">{r.polity.name}</span>
+                    )}
+                  </div>
+                  <span className="ml-auto text-stone-700 group-hover:text-amber-500/50 text-[11px]">→</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── PolityList ────────────────────────────────────────────────────────────
-function PolityList({ territories, onSelectPolity }) {
+function PolityList({ year, territories, onSelectPolity, onNavigateTo }) {
   return (
     <div>
-      <div className="px-6 pt-7 pb-4 border-b border-stone-800/70">
+      <YearOverview year={year} onNavigateTo={onNavigateTo} onSelectPolity={onSelectPolity} />
+
+      <div className="px-6 pt-5 pb-4 border-b border-stone-800/70">
         <p className="text-[10px] text-stone-500 tracking-[0.2em] uppercase">
           {territories.length} {territories.length === 1 ? "power" : "powers"} on the map
         </p>

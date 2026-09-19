@@ -160,6 +160,7 @@ function App() {
             />
           </div>
           <Sidebar
+            year={year}
             territories={territories}
             rulers={rulers}
             selectedPolityId={selectedPolityId}
