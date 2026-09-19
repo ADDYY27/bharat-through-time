@@ -94,7 +94,7 @@ function App() {
 
   return (
     <div className="h-screen bg-[#0f0e0c] text-stone-100 flex flex-col">
-      <header className="px-7 pt-6 pb-5 border-b border-stone-800/70 bg-[#14120f]">
+      <header className="px-6 pt-5 pb-4 border-b border-stone-800/70 bg-[#14120f]">
         <div className="flex items-baseline justify-between gap-3">
           <div className="flex items-baseline gap-3">
             <h1 className="font-display text-[20px] tracking-tight text-stone-100">
@@ -119,11 +119,14 @@ function App() {
         </div>
 
         {!compareMode && (
-          <div className="flex items-center gap-4 mt-5 max-w-xl">
-            <span className="font-display text-[26px] text-amber-200/90 w-[62px] tabular-nums">
-              {year}
-            </span>
-            <div className="flex-1 relative">
+          <div className="flex items-center gap-4 mt-4">
+            <div className="flex items-baseline gap-1.5 w-[72px] shrink-0">
+              <span className="font-display text-[26px] text-amber-200/90 tabular-nums leading-none">
+                {year}
+              </span>
+              <span className="text-[10px] text-stone-600 tracking-[0.12em] uppercase">CE</span>
+            </div>
+            <div className="flex-1 relative min-w-0">
               <input
                 type="range"
                 min={MIN_YEAR}

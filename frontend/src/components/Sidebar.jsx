@@ -43,7 +43,7 @@ export default function Sidebar({
   if (selectedEntity) {
     if (selectedEntity.kind === "event") {
       return (
-        <aside className="w-[340px] border-l border-stone-800 bg-[#14120f] overflow-y-auto flex flex-col">
+        <aside className="sidebar-rail border-l border-stone-800 bg-[#14120f] overflow-y-auto flex flex-col">
           <EventDetail
             event={selectedEntity.data}
             hasBack={hasBack}
@@ -56,7 +56,7 @@ export default function Sidebar({
     }
     if (selectedEntity.kind === "place") {
       return (
-        <aside className="w-[340px] border-l border-stone-800 bg-[#14120f] overflow-y-auto flex flex-col">
+        <aside className="sidebar-rail border-l border-stone-800 bg-[#14120f] overflow-y-auto flex flex-col">
           <PlaceDetail
             placeData={selectedEntity.data}
             hasBack={hasBack}
@@ -69,7 +69,7 @@ export default function Sidebar({
     }
     if (selectedEntity.kind === "ruler") {
       return (
-        <aside className="w-[340px] border-l border-stone-800 bg-[#14120f] overflow-y-auto flex flex-col">
+        <aside className="sidebar-rail border-l border-stone-800 bg-[#14120f] overflow-y-auto flex flex-col">
           <RulerDetail
             ruler={selectedEntity.data}
             hasBack={hasBack}
@@ -92,7 +92,7 @@ export default function Sidebar({
   // Legacy: dedicated ruler view (from direct search click)
   if (selectedRuler) {
     return (
-      <aside className="w-[340px] border-l border-stone-800 bg-[#14120f] overflow-y-auto flex flex-col">
+      <aside className="sidebar-rail border-l border-stone-800 bg-[#14120f] overflow-y-auto flex flex-col">
         <RulerDetail
           ruler={selectedRuler}
           hasBack={false}
@@ -117,7 +117,7 @@ export default function Sidebar({
     : [];
 
   return (
-    <aside className="w-[340px] border-l border-stone-800 bg-[#14120f] overflow-y-auto flex flex-col">
+    <aside className="sidebar-rail border-l border-stone-800 bg-[#14120f] overflow-y-auto flex flex-col">
       {selected ? (
         <PolityDetail
           territory={selected}
@@ -156,8 +156,8 @@ function YearOverview({ year, onNavigateTo, onSelectPolity }) {
 
   if (loading) {
     return (
-      <div className="px-6 pt-6 pb-4 border-b border-stone-800/70">
-        <p className="text-[10px] text-stone-600 tracking-[0.2em] uppercase animate-pulse">Loading {year}…</p>
+      <div className="px-7 pt-7 pb-5 border-b border-stone-800/50">
+        <p className="text-[9px] text-stone-600 tracking-[0.25em] uppercase animate-pulse">Loading {year}…</p>
       </div>
     );
   }
@@ -173,19 +173,21 @@ function YearOverview({ year, onNavigateTo, onSelectPolity }) {
     return Math.abs(a.year - year) - Math.abs(b.year - year);
   });
 
-  const exactEvents = sortedEvents.filter((e) => e.isExact);
-  const nearEvents = sortedEvents.filter((e) => !e.isExact);
-
   return (
-    <div className="border-b border-stone-800/70">
-      {/* Year header + stat pills */}
-      <div className="px-6 pt-6 pb-5">
-        <div className="flex items-baseline gap-2 mb-4">
-          <span className="font-display text-[28px] text-amber-200/90 tabular-nums leading-none">{year}</span>
-          <span className="text-[10px] text-stone-600 tracking-[0.15em] uppercase">CE</span>
-        </div>
+    <div className="border-b border-stone-800/60">
 
-        <div className="grid grid-cols-2 gap-2">
+      {/* ── Year header ── */}
+      <div className="px-7 pt-7 pb-5 border-b border-stone-800/40">
+        <div className="flex items-baseline gap-2 mb-1.5">
+          <span className="font-display text-[34px] text-amber-200/90 tabular-nums leading-none">{year}</span>
+          <span className="text-[10px] text-stone-600 tracking-[0.2em] uppercase">CE</span>
+        </div>
+        <p className="text-[9px] text-stone-600 tracking-[0.22em] uppercase">Historical Overview</p>
+      </div>
+
+      {/* ── Stat cards ── */}
+      <div className="px-7 py-5 border-b border-stone-800/40">
+        <div className="grid grid-cols-2 gap-2.5">
           {[
             { label: counts.polities === 1 ? "Power" : "Powers", value: counts.polities, color: "#d4a24c" },
             { label: counts.rulers === 1 ? "Person" : "People", value: counts.rulers, color: "#9b7fb0" },
@@ -194,43 +196,38 @@ function YearOverview({ year, onNavigateTo, onSelectPolity }) {
           ].map(({ label, value, color }) => (
             <div
               key={label}
-              className="rounded-md px-3 py-2.5 bg-stone-900/60 border border-stone-800/60 flex items-center gap-2"
+              className="px-4 py-3.5 bg-stone-900/50 border border-stone-800/60"
             >
-              <span
-                className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                style={{ backgroundColor: color }}
-              />
-              <span className="font-display text-[16px] text-stone-100 tabular-nums leading-none">{value}</span>
-              <span className="text-[10px] text-stone-500 tracking-wide leading-none">{label}</span>
+              <div
+                className="font-display text-[26px] tabular-nums leading-none mb-1.5"
+                style={{ color }}
+              >{value}</div>
+              <div className="text-[9px] text-stone-600 tracking-[0.22em] uppercase">{label}</div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Key Events */}
+      {/* ── Key Events ── */}
       {sortedEvents.length > 0 && (
-        <div className="px-6 pb-5">
-          <p className="text-[9.5px] text-stone-600 tracking-[0.22em] uppercase mb-2.5">Key Events</p>
-          <ul className="space-y-1">
+        <div className="px-7 py-5 border-b border-stone-800/40">
+          <p className="text-[9px] text-stone-600 tracking-[0.25em] uppercase mb-3">Key Events</p>
+          <ul>
             {sortedEvents.slice(0, 6).map((ev) => (
               <li key={ev._id}>
                 <button
                   onClick={() => onNavigateTo?.({ kind: "event", data: ev })}
-                  className="w-full text-left flex items-start gap-2 py-1 group"
+                  className="w-full text-left flex items-center gap-3 py-2.5 px-2 -mx-2 rounded hover:bg-stone-900/50 group transition-colors"
                 >
                   <span
-                    className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-[5px]"
+                    className="w-2 h-2 rounded-full flex-shrink-0"
                     style={{ backgroundColor: EVENT_COLORS[ev.type] || EVENT_COLORS.other }}
                   />
-                  <div className="min-w-0 flex-1">
-                    <span className="text-[12px] text-stone-300 group-hover:text-amber-200 transition-colors leading-snug">
-                      {ev.title}
-                    </span>
-                    {!ev.isExact && (
-                      <span className="ml-1.5 text-[9.5px] text-stone-600 tabular-nums">{ev.year}</span>
-                    )}
-                  </div>
-                  <span className="text-stone-700 group-hover:text-amber-500/50 text-[11px] flex-shrink-0 mt-px">→</span>
+                  <span className="flex-1 text-[13px] text-stone-300 group-hover:text-amber-200 transition-colors leading-snug min-w-0">
+                    {ev.title}
+                  </span>
+                  <span className="text-[10.5px] text-stone-600 tabular-nums flex-shrink-0">{ev.year}</span>
+                  <span className="text-stone-700 group-hover:text-amber-500/60 text-[11px] flex-shrink-0 ml-1">→</span>
                 </button>
               </li>
             ))}
@@ -238,25 +235,28 @@ function YearOverview({ year, onNavigateTo, onSelectPolity }) {
         </div>
       )}
 
-      {/* Active Powers */}
+      {/* ── Active Powers ── */}
       {polities && polities.length > 0 && (
-        <div className="px-6 pb-5">
-          <p className="text-[9.5px] text-stone-600 tracking-[0.22em] uppercase mb-2.5">Active Powers</p>
-          <ul className="space-y-1">
+        <div className="px-7 py-5 border-b border-stone-800/40">
+          <p className="text-[9px] text-stone-600 tracking-[0.25em] uppercase mb-3">Active Powers</p>
+          <ul>
             {polities.map((pol) => (
               <li key={pol._id}>
                 <button
                   onClick={() => onSelectPolity?.(pol._id)}
-                  className="w-full text-left flex items-center gap-2 py-0.5 group"
+                  className="w-full text-left flex items-center gap-3 py-2.5 px-2 -mx-2 rounded hover:bg-stone-900/50 group transition-colors"
                 >
                   <span
-                    className="w-2 h-2 rounded-full flex-shrink-0"
+                    className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                     style={{ backgroundColor: pol.colorHex || "#8a8578" }}
                   />
-                  <span className="text-[12px] text-stone-400 group-hover:text-amber-200 transition-colors">
+                  <span className="flex-1 text-[13px] text-stone-300 group-hover:text-amber-200 transition-colors">
                     {pol.name}
                   </span>
-                  <span className="ml-auto text-stone-700 group-hover:text-amber-500/50 text-[11px]">→</span>
+                  {pol.type && (
+                    <span className="text-[10px] text-stone-600 capitalize flex-shrink-0">{pol.type}</span>
+                  )}
+                  <span className="text-stone-700 group-hover:text-amber-500/60 text-[11px] flex-shrink-0 ml-1">→</span>
                 </button>
               </li>
             ))}
@@ -264,27 +264,26 @@ function YearOverview({ year, onNavigateTo, onSelectPolity }) {
         </div>
       )}
 
-      {/* Key Figures */}
+      {/* ── Key Figures ── */}
       {rulers && rulers.length > 0 && (
-        <div className="px-6 pb-6">
-          <p className="text-[9.5px] text-stone-600 tracking-[0.22em] uppercase mb-2.5">Key Figures</p>
-          <ul className="space-y-1">
+        <div className="px-7 py-5 pb-7">
+          <p className="text-[9px] text-stone-600 tracking-[0.25em] uppercase mb-3">Key Figures</p>
+          <ul>
             {rulers.map((r) => (
               <li key={r._id}>
                 <button
                   onClick={() => onNavigateTo?.({ kind: "ruler", data: r })}
-                  className="w-full text-left flex items-center gap-2 py-0.5 group"
+                  className="w-full text-left flex items-center gap-3 py-2.5 px-2 -mx-2 rounded hover:bg-stone-900/50 group transition-colors"
                 >
-                  <span className="text-stone-700 text-[10px] flex-shrink-0">👤</span>
                   <div className="min-w-0 flex-1">
-                    <span className="text-[12px] text-stone-400 group-hover:text-amber-200 transition-colors">
+                    <div className="text-[13px] text-stone-300 group-hover:text-amber-200 transition-colors leading-snug">
                       {r.name}
-                    </span>
+                    </div>
                     {r.polity?.name && (
-                      <span className="text-[9.5px] text-stone-700 ml-1.5">{r.polity.name}</span>
+                      <div className="text-[10.5px] text-stone-600 mt-0.5">{r.polity.name}</div>
                     )}
                   </div>
-                  <span className="ml-auto text-stone-700 group-hover:text-amber-500/50 text-[11px]">→</span>
+                  <span className="text-stone-700 group-hover:text-amber-500/60 text-[11px] flex-shrink-0">→</span>
                 </button>
               </li>
             ))}
@@ -301,14 +300,14 @@ function PolityList({ year, territories, onSelectPolity, onNavigateTo }) {
     <div>
       <YearOverview year={year} onNavigateTo={onNavigateTo} onSelectPolity={onSelectPolity} />
 
-      <div className="px-6 pt-5 pb-4 border-b border-stone-800/70">
-        <p className="text-[10px] text-stone-500 tracking-[0.2em] uppercase">
+      <div className="px-7 pt-5 pb-4 border-b border-stone-800/60">
+        <p className="text-[9px] text-stone-600 tracking-[0.25em] uppercase">
           {territories.length} {territories.length === 1 ? "power" : "powers"} on the map
         </p>
       </div>
 
       {territories.length === 0 && (
-        <p className="px-6 py-8 text-[13px] text-stone-500 leading-relaxed italic">
+        <p className="px-7 py-8 text-[13px] text-stone-500 leading-relaxed italic">
           No recorded territories for this year yet.
         </p>
       )}
@@ -318,7 +317,7 @@ function PolityList({ year, territories, onSelectPolity, onNavigateTo }) {
           <li key={t._id} className={i !== 0 ? "border-t border-stone-800/50" : ""}>
             <button
               onClick={() => onSelectPolity(t.polity._id)}
-              className="w-full text-left px-6 py-4 hover:bg-stone-900/60 transition-colors group flex items-start gap-3.5"
+              className="w-full text-left px-7 py-4 hover:bg-stone-900/60 transition-colors group flex items-start gap-3.5"
             >
               <span
                 className="w-[3px] self-stretch rounded-full flex-shrink-0 opacity-70 group-hover:opacity-100 transition-opacity"
