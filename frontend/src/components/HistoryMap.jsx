@@ -133,15 +133,19 @@ export default function HistoryMap({
         {showPolitical &&
           territories.map((t) => {
             const isSelected = t.polity?._id === selectedPolityId;
+            const isWeak = t.representation === "weak";
+            const baseColor = t.polity?.colorHex || "#cc6633";
             return (
               <GeoJSON
                 key={t._id}
                 data={t.geometry}
                 style={{
-                  fillColor: t.polity?.colorHex || "#cc6633",
-                  fillOpacity: isSelected ? 0.7 : 0.42,
-                  color: t.polity?.colorHex || "#cc6633",
-                  weight: isSelected ? 2.5 : 1.5,
+                  fillColor: baseColor,
+                  fillOpacity: isWeak ? 0.12 : isSelected ? 0.7 : 0.42,
+                  color: baseColor,
+                  weight: isWeak ? 1 : isSelected ? 2.5 : 1.5,
+                  opacity: isWeak ? 0.45 : 1,
+                  dashArray: isWeak ? "5 5" : undefined,
                 }}
                 eventHandlers={{
                   click: () => onSelectPolity?.(t.polity?._id),
@@ -150,6 +154,15 @@ export default function HistoryMap({
                 <Popup>
                   <div style={{ fontFamily: "Georgia, serif", maxWidth: 220 }}>
                     <strong style={{ fontSize: 15 }}>{t.polity?.name}</strong>
+                    {isWeak && (
+                      <div style={{
+                        fontFamily: "sans-serif", fontSize: 11, marginTop: 4,
+                        color: "#b08050", fontStyle: "italic", lineHeight: 1.5,
+                        borderLeft: "2px solid #b08050", paddingLeft: 6,
+                      }}>
+                        Approximate historical presence — not effective political control
+                      </div>
+                    )}
                     <div style={{ fontFamily: "sans-serif", fontSize: 12, color: "#666", marginTop: 6, lineHeight: 1.6 }}>
                       Capital — {t.polity?.capital?.name || "Unknown"}<br />
                       Shown for {t.validFrom}–{t.validTo}<br />
@@ -246,6 +259,42 @@ export default function HistoryMap({
 
       <SearchBox onJump={handleJump} />
       <LayerControl activeLayers={activeLayers} onToggle={toggleLayer} />
+
+      {/* Territory representation legend */}
+      {showPolitical && (
+        <div
+          className="absolute bottom-8 left-3 z-[1000] bg-[#14120f]/92 border border-stone-800 rounded-md px-3 py-2.5 backdrop-blur-sm shadow-lg shadow-black/30"
+          style={{ pointerEvents: "none" }}
+        >
+          <p className="text-[9px] text-stone-500 tracking-[0.18em] uppercase mb-2">
+            Territory
+          </p>
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-2">
+              <span
+                style={{
+                  display: "inline-block", width: 22, height: 10,
+                  background: "rgba(180,130,60,0.42)",
+                  border: "1.5px solid rgba(180,130,60,0.9)",
+                  borderRadius: 2,
+                }}
+              />
+              <span className="text-[10.5px] text-stone-300">Active territory</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span
+                style={{
+                  display: "inline-block", width: 22, height: 10,
+                  background: "rgba(180,130,60,0.12)",
+                  border: "1px dashed rgba(180,130,60,0.45)",
+                  borderRadius: 2,
+                }}
+              />
+              <span className="text-[10.5px] text-stone-400">Approximate presence</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {loading && (
         <div className="absolute top-[62px] left-3 bg-[#14120f]/90 text-stone-300 text-[11px] tracking-wide px-3 py-1.5 rounded z-[1000] border border-stone-800">

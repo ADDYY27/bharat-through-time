@@ -58,27 +58,42 @@ export default function CompareMapPanel({ year, onYearChange, label }) {
             url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; OpenStreetMap contributors"
           />
-          {territories.map((t) => (
-            <GeoJSON
-              key={t._id}
-              data={t.geometry}
-              style={{
-                fillColor: t.polity?.colorHex || "#cc6633",
-                fillOpacity: 0.5,
-                color: t.polity?.colorHex || "#cc6633",
-                weight: 1.5,
-              }}
-            >
-              <Popup>
-                <div style={{ fontFamily: "Georgia, serif", maxWidth: 200 }}>
-                  <strong style={{ fontSize: 14 }}>{t.polity?.name}</strong>
-                  <div style={{ fontFamily: "sans-serif", fontSize: 11.5, color: "#666", marginTop: 4 }}>
-                    Capital — {t.polity?.capital?.name || "Unknown"}
+          {territories.map((t) => {
+            const isWeak = t.representation === "weak";
+            const baseColor = t.polity?.colorHex || "#cc6633";
+            return (
+              <GeoJSON
+                key={t._id}
+                data={t.geometry}
+                style={{
+                  fillColor: baseColor,
+                  fillOpacity: isWeak ? 0.12 : 0.5,
+                  color: baseColor,
+                  weight: isWeak ? 1 : 1.5,
+                  opacity: isWeak ? 0.45 : 1,
+                  dashArray: isWeak ? "5 5" : undefined,
+                }}
+              >
+                <Popup>
+                  <div style={{ fontFamily: "Georgia, serif", maxWidth: 200 }}>
+                    <strong style={{ fontSize: 14 }}>{t.polity?.name}</strong>
+                    {isWeak && (
+                      <div style={{
+                        fontFamily: "sans-serif", fontSize: 10.5, marginTop: 4,
+                        color: "#b08050", fontStyle: "italic", lineHeight: 1.5,
+                        borderLeft: "2px solid #b08050", paddingLeft: 5,
+                      }}>
+                        Approximate presence
+                      </div>
+                    )}
+                    <div style={{ fontFamily: "sans-serif", fontSize: 11.5, color: "#666", marginTop: 4 }}>
+                      Capital — {t.polity?.capital?.name || "Unknown"}
+                    </div>
                   </div>
-                </div>
-              </Popup>
-            </GeoJSON>
-          ))}
+                </Popup>
+              </GeoJSON>
+            );
+          })}
         </MapContainer>
 
         {loading && (

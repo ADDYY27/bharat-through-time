@@ -9,6 +9,12 @@ const territorySchema = new mongoose.Schema({
     coordinates: { type: mongoose.Schema.Types.Mixed, required: true },
   },
   confidence: { type: String, enum: ["low", "medium", "high"], default: "medium" },
+  // representation: how strongly to visually communicate political control.
+  // - "effective" (default): normal fill — polity actively controlled this area.
+  // - "weak": faded fill — historical/nominal presence only; boundary is approximate.
+  // NOTE: this is NOT the same as confidence. confidence = boundary reliability.
+  //       representation = degree of political control being claimed.
+  representation: { type: String, enum: ["effective", "weak"], default: "effective" },
   sources: [{ type: mongoose.Schema.Types.ObjectId, ref: "Source" }],
 });
 

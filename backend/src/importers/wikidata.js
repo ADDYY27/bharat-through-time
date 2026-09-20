@@ -3,7 +3,7 @@
 // summary from DBpedia. Used by importRulers.js and similar importer scripts.
 
 const SPARQL_ENDPOINT = "https://query.wikidata.org/sparql";
-const USER_AGENT = "BharatThroughTime/0.1 (educational project; contact: none)";
+const USER_AGENT = "BharatThroughTimeBot/1.0 (historical atlas; educational; contact: addy@example.com)";
 
 // Wikidata requires a descriptive User-Agent on requests, or it may throttle/block.
 // Wikidata sometimes has malformed or unusually-formatted date values (e.g.
@@ -12,6 +12,11 @@ const USER_AGENT = "BharatThroughTime/0.1 (educational project; contact: none)";
 // crashes the whole import — this guards against that.
 function safeYear(dateString) {
   if (!dateString) return null;
+  const match = String(dateString).match(/^[+-]?\d+/);
+  if (match) {
+    const y = parseInt(match[0], 10);
+    return Number.isNaN(y) ? null : y;
+  }
   const year = new Date(dateString).getFullYear();
   return Number.isNaN(year) ? null : year;
 }
@@ -26,9 +31,44 @@ async function wdFetch(url) {
 
 /**
  * Fetch core facts for a single Wikidata entity (a person or a place).
+ * Uses fast wbgetentities REST API with SPARQL fallback.
  * Returns: { label, description, birthYear, deathYear, image, coordinates, wikipediaTitle }
  */
 export async function getEntity(qid) {
+  // First attempt via fast MediaWiki REST API
+  try {
+    const restUrl = `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${qid}&languages=en&format=json`;
+    const res = await fetch(restUrl, { headers: { "User-Agent": USER_AGENT } });
+    if (res.ok) {
+      const data = await res.json();
+      const ent = data.entities?.[qid];
+      if (ent && !ent.missing) {
+        let coordinates = null;
+        const p625 = ent.claims?.P625?.[0]?.mainsnak?.datavalue?.value;
+        if (p625 && typeof p625.longitude === "number" && typeof p625.latitude === "number") {
+          coordinates = [p625.longitude, p625.latitude];
+        }
+
+        const birthVal = ent.claims?.P569?.[0]?.mainsnak?.datavalue?.value?.time;
+        const deathVal = ent.claims?.P570?.[0]?.mainsnak?.datavalue?.value?.time;
+        const imgName = ent.claims?.P18?.[0]?.mainsnak?.datavalue?.value;
+        const image = imgName ? `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(imgName)}` : null;
+
+        return {
+          label: ent.labels?.en?.value || null,
+          description: ent.descriptions?.en?.value || null,
+          birthYear: safeYear(birthVal),
+          deathYear: safeYear(deathVal),
+          image,
+          coordinates,
+          wikipediaTitle: ent.sitelinks?.enwiki?.title || null,
+        };
+      }
+    }
+  } catch {
+    // fall back to SPARQL
+  }
+
   const query = `
     SELECT ?label ?description ?birth ?death ?image ?coord ?article WHERE {
       OPTIONAL { wd:${qid} rdfs:label ?label . FILTER(LANG(?label) = "en") }

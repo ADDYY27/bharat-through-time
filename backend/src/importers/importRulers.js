@@ -29,6 +29,13 @@ const CURATED_RULERS = [
     reignEnd: 1782,
   },
   {
+    qid: "Q10088", // Tipu Sultan (verified)
+    polityName: "Kingdom of Mysore",
+    title: "Sultan of Mysore",
+    reignStart: 1782,
+    reignEnd: 1799,
+  },
+  {
     qid: "Q192868", // Nadir Shah (verified)
     polityName: null, // not one of our seeded polities — imported as a standalone figure
     title: "Shah of Persia",
