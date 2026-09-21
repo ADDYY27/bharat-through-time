@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const CATEGORY_ORDER = ["event", "ruler", "place", "polity"];
 const CATEGORY_LABEL = { event: "Events", ruler: "People", place: "Places", polity: "Polities" };

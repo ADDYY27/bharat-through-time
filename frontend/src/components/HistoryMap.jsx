@@ -5,7 +5,8 @@ import "leaflet/dist/leaflet.css";
 import LayerControl from "./LayerControl";
 import SearchBox from "./SearchBox";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const EVENT_WINDOW = 18;
 
 const cityIcon = L.divIcon({

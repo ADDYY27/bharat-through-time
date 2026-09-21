@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, GeoJSON, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const MIN_YEAR = 1700;
 const MAX_YEAR = 1820;
 
