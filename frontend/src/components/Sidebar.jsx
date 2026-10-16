@@ -3,14 +3,14 @@ import { useEffect, useState } from "react";
 const API_BASE =
   import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
-// ── Colour constants ──────────────────────────────────────────────────────
+// ── Indian Heritage Event Colors ──────────────────────────────────────────
 const EVENT_COLORS = {
-  battle: "#c1666b",
-  treaty: "#5b8fa8",
-  succession: "#9b7fb0",
-  founding: "#7fb069",
-  conquest: "#d4a24c",
-  other: "#8a8578",
+  battle: "#A8523B",
+  treaty: "#293E63",
+  succession: "#7C6A52",
+  founding: "#4D6B53",
+  conquest: "#C28C40",
+  other: "#7C6A52",
 };
 
 // ── Top-level Sidebar router ──────────────────────────────────────────────
@@ -22,7 +22,6 @@ export default function Sidebar({
   selectedRuler,
   onSelectPolity,
   onClearRuler,
-  // Knowledge-graph props
   selectedEntity,
   navStack,
   onNavigateTo,
@@ -32,7 +31,6 @@ export default function Sidebar({
 }) {
   const hasBack = navStack && navStack.length > 0;
 
-  // Handle polity_id entity: redirect into legacy polity selection on next tick
   useEffect(() => {
     if (selectedEntity?.kind === "polity_id") {
       onSelectPolity(selectedEntity.data);
@@ -40,11 +38,10 @@ export default function Sidebar({
     }
   }, [selectedEntity, onSelectPolity, onClearEntity]);
 
-  // Knowledge-graph entity takes highest priority
   if (selectedEntity) {
     if (selectedEntity.kind === "event") {
       return (
-        <aside className="sidebar-rail border-l border-stone-800 bg-[#14120f] overflow-y-auto flex flex-col">
+        <aside className="sidebar-rail h-full min-h-0 flex-1 border-l border-[#D4BE98] bg-[#FAF5EB] overflow-y-auto flex flex-col text-[#34291F]">
           <EventDetail
             event={selectedEntity.data}
             hasBack={hasBack}
@@ -57,7 +54,7 @@ export default function Sidebar({
     }
     if (selectedEntity.kind === "place") {
       return (
-        <aside className="sidebar-rail border-l border-stone-800 bg-[#14120f] overflow-y-auto flex flex-col">
+        <aside className="sidebar-rail h-full min-h-0 flex-1 border-l border-[#D4BE98] bg-[#FAF5EB] overflow-y-auto flex flex-col text-[#34291F]">
           <PlaceDetail
             placeData={selectedEntity.data}
             hasBack={hasBack}
@@ -70,7 +67,7 @@ export default function Sidebar({
     }
     if (selectedEntity.kind === "ruler") {
       return (
-        <aside className="sidebar-rail border-l border-stone-800 bg-[#14120f] overflow-y-auto flex flex-col">
+        <aside className="sidebar-rail h-full min-h-0 flex-1 border-l border-[#D4BE98] bg-[#FAF5EB] overflow-y-auto flex flex-col text-[#34291F]">
           <RulerDetail
             ruler={selectedEntity.data}
             hasBack={hasBack}
@@ -86,14 +83,12 @@ export default function Sidebar({
         </aside>
       );
     }
-    // polity_id: handled by useEffect above, render nothing while redirecting
     return null;
   }
 
-  // Legacy: dedicated ruler view (from direct search click)
   if (selectedRuler) {
     return (
-      <aside className="sidebar-rail border-l border-stone-800 bg-[#14120f] overflow-y-auto flex flex-col">
+      <aside className="sidebar-rail h-full min-h-0 flex-1 border-l border-[#D4BE98] bg-[#FAF5EB] overflow-y-auto flex flex-col text-[#34291F]">
         <RulerDetail
           ruler={selectedRuler}
           hasBack={false}
@@ -118,7 +113,7 @@ export default function Sidebar({
     : [];
 
   return (
-    <aside className="sidebar-rail border-l border-stone-800 bg-[#14120f] overflow-y-auto flex flex-col">
+    <aside className="sidebar-rail h-full min-h-0 flex-1 border-l border-[#D4BE98] bg-[#FAF5EB] overflow-y-auto flex flex-col text-[#34291F]">
       {selected ? (
         <PolityDetail
           territory={selected}
@@ -139,8 +134,8 @@ export default function Sidebar({
   );
 }
 
-// ── YearOverview ─────────────────────────────────────────────────────────
-function YearOverview({ year, onNavigateTo, onSelectPolity }) {
+// ── YearOverview matching Figma Screenshot 1 ──────────────────────────────
+function YearOverview({ year, onNavigateTo, onSelectPolity, territories }) {
   const [overview, setOverview] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -157,107 +152,66 @@ function YearOverview({ year, onNavigateTo, onSelectPolity }) {
 
   if (loading) {
     return (
-      <div className="px-7 pt-7 pb-5 border-b border-stone-800/50">
-        <p className="text-[9px] text-stone-600 tracking-[0.25em] uppercase animate-pulse">Loading {year}…</p>
+      <div className="px-6 pt-6 pb-4 border-b border-[#D4BE98]/50">
+        <p className="text-[10px] text-[#7C6A52] tracking-[0.2em] uppercase animate-pulse">
+          Loading {year} CE overview…
+        </p>
       </div>
     );
   }
 
-  if (!overview) return null;
+  const polities = overview?.polities || territories?.map((t) => ({
+    _id: t.polity?._id,
+    name: t.polity?.name,
+    colorHex: t.polity?.colorHex,
+  })).filter(Boolean) || [];
 
-  const { counts, polities, rulers, events } = overview;
+  const rulers = overview?.rulers || [];
+  const events = overview?.events || [];
 
-  // Exact-year events first, then contextual (sorted by proximity)
-  const sortedEvents = [...(events || [])].sort((a, b) => {
+  const sortedEvents = [...events].sort((a, b) => {
     if (a.isExact && !b.isExact) return -1;
     if (!a.isExact && b.isExact) return 1;
     return Math.abs(a.year - year) - Math.abs(b.year - year);
   });
 
   return (
-    <div className="border-b border-stone-800/60">
-
-      {/* ── Year header ── */}
-      <div className="px-7 pt-7 pb-5 border-b border-stone-800/40">
-        <div className="flex items-baseline gap-2 mb-1.5">
-          <span className="font-display text-[34px] text-amber-200/90 tabular-nums leading-none">{year}</span>
-          <span className="text-[10px] text-stone-600 tracking-[0.2em] uppercase">CE</span>
+    <div className="p-6 space-y-6">
+      {/* ── Top Header ────────────────────────────────────────────── */}
+      <div className="border-b border-[#D4BE98]/70 pb-5">
+        <div className="flex items-baseline gap-1.5 leading-none">
+          <span className="font-serif text-[38px] font-bold text-[#34291F] tabular-nums">
+            {year}
+          </span>
+          <span className="text-[11px] font-semibold text-[#7C6A52] uppercase tracking-wider">
+            CE
+          </span>
         </div>
-        <p className="text-[9px] text-stone-600 tracking-[0.22em] uppercase">Historical Overview</p>
+        <p className="text-[9.5px] font-semibold text-[#7C6A52] tracking-[0.2em] uppercase mt-1">
+          Historical Context
+        </p>
       </div>
 
-      {/* ── Stat cards ── */}
-      <div className="px-7 py-5 border-b border-stone-800/40">
-        <div className="grid grid-cols-2 gap-2.5">
-          {[
-            { label: counts.polities === 1 ? "Power" : "Powers", value: counts.polities, color: "#d4a24c" },
-            { label: counts.rulers === 1 ? "Person" : "People", value: counts.rulers, color: "#9b7fb0" },
-            { label: counts.events === 1 ? "Event" : "Events", value: counts.events, color: "#c1666b" },
-            { label: "Places", value: counts.places, color: "#5b8fa8" },
-          ].map(({ label, value, color }) => (
-            <div
-              key={label}
-              className="px-4 py-3.5 bg-stone-900/50 border border-stone-800/60"
-            >
-              <div
-                className="font-display text-[26px] tabular-nums leading-none mb-1.5"
-                style={{ color }}
-              >{value}</div>
-              <div className="text-[9px] text-stone-600 tracking-[0.22em] uppercase">{label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Key Events ── */}
-      {sortedEvents.length > 0 && (
-        <div className="px-7 py-5 border-b border-stone-800/40">
-          <p className="text-[9px] text-stone-600 tracking-[0.25em] uppercase mb-3">Key Events</p>
-          <ul>
-            {sortedEvents.slice(0, 6).map((ev) => (
-              <li key={ev._id}>
-                <button
-                  onClick={() => onNavigateTo?.({ kind: "event", data: ev })}
-                  className="w-full text-left flex items-center gap-3 py-2.5 px-2 -mx-2 rounded hover:bg-stone-900/50 group transition-colors"
-                >
-                  <span
-                    className="w-2 h-2 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: EVENT_COLORS[ev.type] || EVENT_COLORS.other }}
-                  />
-                  <span className="flex-1 text-[13px] text-stone-300 group-hover:text-amber-200 transition-colors leading-snug min-w-0">
-                    {ev.title}
-                  </span>
-                  <span className="text-[10.5px] text-stone-600 tabular-nums flex-shrink-0">{ev.year}</span>
-                  <span className="text-stone-700 group-hover:text-amber-500/60 text-[11px] flex-shrink-0 ml-1">→</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* ── Active Powers ── */}
-      {polities && polities.length > 0 && (
-        <div className="px-7 py-5 border-b border-stone-800/40">
-          <p className="text-[9px] text-stone-600 tracking-[0.25em] uppercase mb-3">Active Powers</p>
-          <ul>
+      {/* ── Powers in Year ────────────────────────────────────────── */}
+      {polities.length > 0 && (
+        <div>
+          <p className="text-[10px] font-semibold text-[#7C6A52] tracking-[0.18em] uppercase mb-3">
+            Powers in {year}
+          </p>
+          <ul className="space-y-2">
             {polities.map((pol) => (
               <li key={pol._id}>
                 <button
                   onClick={() => onSelectPolity?.(pol._id)}
-                  className="w-full text-left flex items-center gap-3 py-2.5 px-2 -mx-2 rounded hover:bg-stone-900/50 group transition-colors"
+                  className="w-full text-left flex items-center gap-2.5 py-1 px-1 -mx-1 rounded hover:bg-[#EFE4CE] transition-colors group cursor-pointer"
                 >
                   <span
                     className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: pol.colorHex || "#8a8578" }}
+                    style={{ backgroundColor: pol.colorHex || "#C28C40" }}
                   />
-                  <span className="flex-1 text-[13px] text-stone-300 group-hover:text-amber-200 transition-colors">
+                  <span className="text-[13px] font-medium text-[#34291F] group-hover:text-[#A8523B] transition-colors">
                     {pol.name}
                   </span>
-                  {pol.type && (
-                    <span className="text-[10px] text-stone-600 capitalize flex-shrink-0">{pol.type}</span>
-                  )}
-                  <span className="text-stone-700 group-hover:text-amber-500/60 text-[11px] flex-shrink-0 ml-1">→</span>
                 </button>
               </li>
             ))}
@@ -265,32 +219,81 @@ function YearOverview({ year, onNavigateTo, onSelectPolity }) {
         </div>
       )}
 
-      {/* ── Key Figures ── */}
-      {rulers && rulers.length > 0 && (
-        <div className="px-7 py-5 pb-7">
-          <p className="text-[9px] text-stone-600 tracking-[0.25em] uppercase mb-3">Key Figures</p>
-          <ul>
-            {rulers.map((r) => (
-              <li key={r._id}>
-                <button
-                  onClick={() => onNavigateTo?.({ kind: "ruler", data: r })}
-                  className="w-full text-left flex items-center gap-3 py-2.5 px-2 -mx-2 rounded hover:bg-stone-900/50 group transition-colors"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="text-[13px] text-stone-300 group-hover:text-amber-200 transition-colors leading-snug">
-                      {r.name}
-                    </div>
-                    {r.polity?.name && (
-                      <div className="text-[10.5px] text-stone-600 mt-0.5">{r.polity.name}</div>
-                    )}
-                  </div>
-                  <span className="text-stone-700 group-hover:text-amber-500/60 text-[11px] flex-shrink-0">→</span>
-                </button>
-              </li>
+      {/* ── Key Figures ───────────────────────────────────────────── */}
+      {rulers.length > 0 && (
+        <div>
+          <p className="text-[10px] font-semibold text-[#7C6A52] tracking-[0.18em] uppercase mb-2.5">
+            Key Figures
+          </p>
+          <div className="space-y-2">
+            {rulers.slice(0, 3).map((r) => (
+              <button
+                key={r._id}
+                onClick={() => onNavigateTo?.({ kind: "ruler", data: r })}
+                className="w-full text-left bg-[#EFE4CE]/80 border border-[#D4BE98] rounded-md px-3.5 py-2.5 flex items-center justify-between hover:bg-[#EAE0CB] hover:border-[#C28C40] transition-all cursor-pointer group"
+              >
+                <span className="text-[13px] font-medium text-[#34291F] group-hover:text-[#A8523B]">
+                  {r.name}
+                </span>
+                <span className="text-[12px] text-[#7C6A52] group-hover:text-[#A8523B] transition-colors">
+                  →
+                </span>
+              </button>
             ))}
-          </ul>
+          </div>
         </div>
       )}
+
+      {/* ── Key Events ────────────────────────────────────────────── */}
+      {sortedEvents.length > 0 && (
+        <div>
+          <p className="text-[10px] font-semibold text-[#7C6A52] tracking-[0.18em] uppercase mb-2.5">
+            Key Events
+          </p>
+          <div className="space-y-2">
+            {sortedEvents.slice(0, 3).map((ev) => (
+              <button
+                key={ev._id}
+                onClick={() => onNavigateTo?.({ kind: "event", data: ev })}
+                className="w-full text-left bg-[#EFE4CE]/80 border border-[#D4BE98] rounded-md px-3.5 py-2.5 flex items-center justify-between hover:bg-[#EAE0CB] hover:border-[#C28C40] transition-all cursor-pointer group"
+              >
+                <span className="text-[12.5px] font-medium text-[#34291F] group-hover:text-[#A8523B] truncate pr-2">
+                  {ev.title}
+                </span>
+                <span className="text-[11.5px] font-medium text-[#7C6A52] shrink-0">
+                  {ev.year}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Sources ───────────────────────────────────────────────── */}
+      <div className="border-t border-[#D4BE98]/70 pt-5">
+        <p className="text-[10px] font-semibold text-[#7C6A52] tracking-[0.18em] uppercase mb-1.5">
+          Sources
+        </p>
+        <p className="text-[11.5px] text-[#7C6A52] leading-relaxed">
+          Wikidata; DBpedia; hand-digitized territory polygons
+        </p>
+      </div>
+
+      {/* ── Confidence ────────────────────────────────────────────── */}
+      <div className="border-t border-[#D4BE98]/70 pt-5">
+        <p className="text-[10px] font-semibold text-[#7C6A52] tracking-[0.18em] uppercase mb-2">
+          Confidence
+        </p>
+        {/* Segmented bar filled with terracotta */}
+        <div className="flex gap-1.5 h-1.5 w-full">
+          <div className="flex-1 bg-[#A8523B] rounded-full" />
+          <div className="flex-1 bg-[#A8523B] rounded-full" />
+          <div className="flex-1 bg-[#D4BE98] rounded-full" />
+        </div>
+        <p className="text-[11px] text-[#7C6A52] mt-2">
+          Medium — borders approximate
+        </p>
+      </div>
     </div>
   );
 }
@@ -299,35 +302,47 @@ function YearOverview({ year, onNavigateTo, onSelectPolity }) {
 function PolityList({ year, territories, onSelectPolity, onNavigateTo }) {
   return (
     <div>
-      <YearOverview year={year} onNavigateTo={onNavigateTo} onSelectPolity={onSelectPolity} />
+      <YearOverview
+        year={year}
+        territories={territories}
+        onNavigateTo={onNavigateTo}
+        onSelectPolity={onSelectPolity}
+      />
 
-      <div className="px-7 pt-5 pb-4 border-b border-stone-800/60">
-        <p className="text-[9px] text-stone-600 tracking-[0.25em] uppercase">
-          {territories.length} {territories.length === 1 ? "power" : "powers"} on the map
+      <div className="px-6 pt-5 pb-3 border-t border-[#D4BE98]/70 bg-[#EFE4CE]/40">
+        <p className="text-[9.5px] font-semibold text-[#7C6A52] tracking-[0.2em] uppercase">
+          {territories.length} {territories.length === 1 ? "Power" : "Powers"} on map
         </p>
       </div>
 
       {territories.length === 0 && (
-        <p className="px-7 py-8 text-[13px] text-stone-500 leading-relaxed italic">
+        <p className="px-6 py-6 text-[12.5px] text-[#7C6A52] italic">
           No recorded territories for this year yet.
         </p>
       )}
 
-      <ul>
-        {territories.map((t, i) => (
-          <li key={t._id} className={i !== 0 ? "border-t border-stone-800/50" : ""}>
+      <ul className="divide-y divide-[#D4BE98]/50">
+        {territories.map((t) => (
+          <li key={t._id}>
             <button
               onClick={() => onSelectPolity(t.polity._id)}
-              className="w-full text-left px-7 py-4 hover:bg-stone-900/60 transition-colors group flex items-start gap-3.5"
+              className="w-full text-left px-6 py-3.5 hover:bg-[#EFE4CE] transition-colors group flex items-start gap-3 cursor-pointer"
             >
               <span
-                className="w-[3px] self-stretch rounded-full flex-shrink-0 opacity-70 group-hover:opacity-100 transition-opacity"
-                style={{ backgroundColor: t.polity.colorHex }}
+                className="w-[3px] self-stretch rounded-full flex-shrink-0"
+                style={{ backgroundColor: t.polity.colorHex || "#C28C40" }}
               />
-              <div className="min-w-0 pt-0.5">
-                <div className="font-display text-[16px] text-stone-100 leading-snug">{t.polity.name}</div>
-                <div className="text-[11.5px] text-stone-500 capitalize mt-0.5 tracking-wide">{t.polity.type}</div>
+              <div className="min-w-0 flex-1">
+                <div className="font-serif text-[15px] font-semibold text-[#34291F] group-hover:text-[#A8523B] transition-colors leading-snug">
+                  {t.polity.name}
+                </div>
+                <div className="text-[11px] text-[#7C6A52] capitalize mt-0.5 tracking-wide">
+                  {t.polity.type} · {t.validFrom}–{t.validTo} CE
+                </div>
               </div>
+              <span className="text-[12px] text-[#7C6A52] group-hover:text-[#A8523B] self-center">
+                →
+              </span>
             </button>
           </li>
         ))}
@@ -339,9 +354,8 @@ function PolityList({ year, territories, onSelectPolity, onNavigateTo }) {
 // ── PolityDetail ──────────────────────────────────────────────────────────
 function PolityDetail({ territory, rulers, onBack, onNavigateTo, onExploreOnMap }) {
   const p = territory.polity;
-
-  // Fetch enriched polity data (all rulers, all events) lazily
   const [enriched, setEnriched] = useState(null);
+
   useEffect(() => {
     if (!p?._id) return;
     fetch(`${API_BASE}/history/polity/${p._id}`)
@@ -355,43 +369,49 @@ function PolityDetail({ territory, rulers, onBack, onNavigateTo, onExploreOnMap 
   (territory.sources || []).forEach((s) => s?._id && sourceMap.set(s._id, s));
   const allSources = Array.from(sourceMap.values());
 
-  // Use enriched rulers if available, else fall back to the year-scoped list
   const allRulers = enriched?.rulers || rulers || [];
   const allEvents = enriched?.events || [];
-
   const capitalCoords = p.capital?.location?.coordinates;
 
   return (
     <div>
       <button
         onClick={onBack}
-        className="w-full text-left px-6 py-3.5 text-[11px] text-stone-500 hover:text-stone-300 transition-colors border-b border-stone-800/70 tracking-wide"
+        className="w-full text-left px-6 py-3 text-[11px] text-[#7C6A52] hover:text-[#A8523B] transition-colors border-b border-[#D4BE98] tracking-wide cursor-pointer flex items-center gap-1 font-medium bg-[#F2E8D5]/60"
       >
-        ‹ back to territories
+        ‹ Back to Overview
       </button>
 
-      <div className="px-6 pt-6 pb-8">
-        <div className="w-8 h-[3px] rounded-full mb-4" style={{ backgroundColor: p.colorHex }} />
-        <h2 className="font-display text-[24px] text-stone-50 leading-[1.15]">{p.name}</h2>
-        <p className="text-[11.5px] text-stone-500 capitalize mt-1.5 tracking-wide">{p.type}</p>
+      <div className="px-6 pt-5 pb-8 space-y-6">
+        <div>
+          <div
+            className="w-8 h-[3px] rounded-full mb-3"
+            style={{ backgroundColor: p.colorHex || "#C28C40" }}
+          />
+          <h2 className="font-serif text-[24px] font-bold text-[#34291F] leading-tight">
+            {p.name}
+          </h2>
+          <p className="text-[11.5px] text-[#7C6A52] capitalize mt-1 tracking-wide">
+            {p.type}
+          </p>
 
-        {/* Explore on Map */}
-        {capitalCoords && (
-          <button
-            onClick={() => {
-              const [lng, lat] = capitalCoords;
-              onExploreOnMap?.([lat, lng], null);
-            }}
-            className="inline-flex items-center gap-1.5 mt-3 text-[11.5px] text-amber-500/80 hover:text-amber-300 transition-colors"
-          >
-            Explore on map →
-          </button>
-        )}
+          {capitalCoords && (
+            <button
+              onClick={() => {
+                const [lng, lat] = capitalCoords;
+                onExploreOnMap?.([lat, lng], null);
+              }}
+              className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 bg-[#A8523B] text-[#FAF5EB] rounded text-[11.5px] font-medium hover:bg-[#93422E] transition-colors cursor-pointer"
+            >
+              Explore on map →
+            </button>
+          )}
+        </div>
 
-        {/* All rulers (clickable) */}
+        {/* All rulers */}
         {allRulers.length > 0 && (
-          <div className="mt-5 pt-5 border-t border-stone-800/70">
-            <p className="text-[10px] text-stone-500 tracking-[0.2em] uppercase mb-2.5">
+          <div className="border-t border-[#D4BE98]/70 pt-4">
+            <p className="text-[10px] font-semibold text-[#7C6A52] tracking-[0.18em] uppercase mb-2.5">
               Rulers
             </p>
             <div className="space-y-2">
@@ -399,59 +419,78 @@ function PolityDetail({ territory, rulers, onBack, onNavigateTo, onExploreOnMap 
                 <button
                   key={r._id}
                   onClick={() => onNavigateTo?.({ kind: "ruler", data: r })}
-                  className="w-full text-left flex gap-3 p-2 rounded hover:bg-stone-900/60 transition-colors group"
+                  className="w-full text-left flex gap-3 p-2 rounded-md hover:bg-[#EFE4CE] transition-colors group cursor-pointer border border-[#D4BE98]/60 bg-[#FAF5EB]"
                 >
                   {r.imageUrl && (
                     <img
                       src={r.imageUrl}
                       alt={r.name}
-                      className="w-9 h-9 rounded object-cover flex-shrink-0 border border-stone-800"
+                      className="w-9 h-9 rounded object-cover flex-shrink-0 border border-[#D4BE98]"
                       onError={(e) => { e.target.style.display = "none"; }}
                     />
                   )}
-                  <div className="min-w-0">
-                    <div className="text-[13px] text-stone-100 group-hover:text-amber-200 transition-colors leading-snug">{r.name}</div>
-                    <div className="text-[10.5px] text-stone-500 mt-0.5">
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[12.5px] font-medium text-[#34291F] group-hover:text-[#A8523B] transition-colors leading-snug">
+                      {r.name}
+                    </div>
+                    <div className="text-[10.5px] text-[#7C6A52] mt-0.5">
                       {r.title || "Ruler"} · {r.reignStart}–{r.reignEnd}
                     </div>
                   </div>
-                  <span className="ml-auto text-stone-600 group-hover:text-amber-400/60 text-[12px] self-center">→</span>
+                  <span className="text-[#7C6A52] group-hover:text-[#A8523B] text-[12px] self-center">
+                    →
+                  </span>
                 </button>
               ))}
             </div>
           </div>
         )}
 
-        <div className="mt-6 space-y-4 text-[13px]">
+        <div className="border-t border-[#D4BE98]/70 pt-4 space-y-3 text-[12.5px]">
           <Row label="Capital" value={p.capital?.name || "Unknown"} />
-          <Row label="Shown for" value={`${territory.validFrom} – ${territory.validTo}`} />
+          <Row label="Active Period" value={`${territory.validFrom} – ${territory.validTo} CE`} />
           <ConfidenceRow confidence={territory.confidence} />
         </div>
 
         {p.description && (
-          <p className="text-[13.5px] text-stone-300 mt-6 leading-[1.65] font-light">{p.description}</p>
+          <div className="border-t border-[#D4BE98]/70 pt-4">
+            <p className="text-[10px] font-semibold text-[#7C6A52] tracking-[0.18em] uppercase mb-2">
+              Brief
+            </p>
+            <p className="text-[12.5px] text-[#34291F] leading-relaxed">
+              {p.description}
+            </p>
+          </div>
         )}
 
-        {/* Related events (clickable) */}
+        {/* Related events */}
         {allEvents.length > 0 && (
-          <div className="mt-7 pt-5 border-t border-stone-800/70">
-            <p className="text-[10px] text-stone-500 tracking-[0.2em] uppercase mb-3">Events</p>
-            <ul className="space-y-2">
+          <div className="border-t border-[#D4BE98]/70 pt-4">
+            <p className="text-[10px] font-semibold text-[#7C6A52] tracking-[0.18em] uppercase mb-2.5">
+              Related Events
+            </p>
+            <ul className="space-y-1.5">
               {allEvents.map((ev) => (
                 <li key={ev._id}>
                   <button
                     onClick={() => onNavigateTo?.({ kind: "event", data: ev })}
-                    className="w-full text-left flex items-start gap-2 p-2 rounded hover:bg-stone-900/60 transition-colors group"
+                    className="w-full text-left flex items-start gap-2.5 p-2 rounded-md hover:bg-[#EFE4CE] transition-colors group cursor-pointer border border-[#D4BE98]/40 bg-[#FAF5EB]"
                   >
                     <span
-                      className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1.5"
+                      className="w-2 h-2 rounded-full flex-shrink-0 mt-1"
                       style={{ backgroundColor: EVENT_COLORS[ev.type] || EVENT_COLORS.other }}
                     />
-                    <div className="min-w-0">
-                      <div className="text-[12.5px] text-stone-200 group-hover:text-amber-200 transition-colors leading-snug">{ev.title}</div>
-                      <div className="text-[10.5px] text-stone-500 mt-0.5 capitalize">{ev.year} · {ev.type}</div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[12px] font-medium text-[#34291F] group-hover:text-[#A8523B] transition-colors leading-snug">
+                        {ev.title}
+                      </div>
+                      <div className="text-[10.5px] text-[#7C6A52] mt-0.5 capitalize">
+                        {ev.year} CE · {ev.type}
+                      </div>
                     </div>
-                    <span className="ml-auto text-stone-600 group-hover:text-amber-400/60 text-[12px] self-center flex-shrink-0">→</span>
+                    <span className="text-[#7C6A52] group-hover:text-[#A8523B] text-[12px] self-center">
+                      →
+                    </span>
                   </button>
                 </li>
               ))}
@@ -475,59 +514,82 @@ function EventDetail({ event, hasBack, onBack, onNavigateTo, onExploreOnMap }) {
     <div>
       <button
         onClick={onBack}
-        className="w-full text-left px-6 py-3.5 text-[11px] text-stone-500 hover:text-stone-300 transition-colors border-b border-stone-800/70 tracking-wide"
+        className="w-full text-left px-6 py-3 text-[11px] text-[#7C6A52] hover:text-[#A8523B] transition-colors border-b border-[#D4BE98] tracking-wide cursor-pointer font-medium bg-[#F2E8D5]/60"
       >
-        {hasBack ? "‹ back" : "‹ back to territories"}
+        {hasBack ? "‹ Back" : "‹ Back to Overview"}
       </button>
 
-      <div className="px-6 pt-6 pb-8">
-        {/* Event type badge */}
-        <div
-          className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.15em] uppercase font-semibold mb-3 px-2 py-1 rounded"
-          style={{ color, backgroundColor: `${color}18` }}
-        >
-          <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
-          {ev.type}
+      <div className="px-6 pt-5 pb-8 space-y-5">
+        <div>
+          <span
+            className="inline-block text-[9.5px] uppercase font-semibold px-2 py-0.5 rounded border mb-2"
+            style={{
+              color: color,
+              backgroundColor: `${color}15`,
+              borderColor: `${color}40`,
+            }}
+          >
+            {ev.type || "Event"}
+          </span>
+
+          <h2 className="font-serif text-[23px] font-bold text-[#34291F] leading-tight">
+            {ev.title}
+          </h2>
+          <p className="text-[12px] font-medium text-[#A8523B] mt-1 tracking-wide">
+            {ev.year} CE
+          </p>
+
+          {placeCoords && (
+            <button
+              onClick={() => {
+                const [lng, lat] = placeCoords;
+                onExploreOnMap?.([lat, lng], ev.year);
+              }}
+              className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 bg-[#A8523B] text-[#FAF5EB] rounded text-[11.5px] font-medium hover:bg-[#93422E] transition-colors cursor-pointer"
+            >
+              Explore on map →
+            </button>
+          )}
         </div>
 
-        <h2 className="font-display text-[22px] text-stone-50 leading-[1.2]">{ev.title}</h2>
-        <p className="text-[12px] text-stone-500 mt-1.5 tracking-wide">{ev.year}</p>
-
-        {/* Explore on Map */}
-        {placeCoords && (
-          <button
-            onClick={() => {
-              const [lng, lat] = placeCoords;
-              onExploreOnMap?.([lat, lng], ev.year);
-            }}
-            className="inline-flex items-center gap-1.5 mt-3 text-[11.5px] text-amber-500/80 hover:text-amber-300 transition-colors"
-          >
-            Explore on map →
-          </button>
-        )}
-
         {ev.description && (
-          <p className="text-[13.5px] text-stone-300 mt-5 leading-[1.65] font-light">{ev.description}</p>
+          <div className="border-t border-[#D4BE98]/70 pt-4">
+            <p className="text-[10px] font-semibold text-[#7C6A52] tracking-[0.18em] uppercase mb-1.5">
+              Brief
+            </p>
+            <p className="text-[12.5px] text-[#34291F] leading-relaxed">
+              {ev.description}
+            </p>
+          </div>
         )}
 
         {ev.outcome && (
-          <p className="text-[12.5px] text-stone-400 mt-3 leading-[1.6] italic">{ev.outcome}</p>
+          <div className="border-l-2 border-[#A8523B] pl-3 py-1 bg-[#EFE4CE]/40 rounded-r">
+            <p className="text-[10px] font-semibold text-[#7C6A52] tracking-[0.18em] uppercase mb-1">
+              Outcome
+            </p>
+            <p className="text-[12px] text-[#34291F] italic leading-relaxed">
+              {ev.outcome}
+            </p>
+          </div>
         )}
 
-        {/* Key Figures — clickable */}
+        {/* Key figures */}
         {ev.rulers && ev.rulers.length > 0 && (
-          <div className="mt-7 pt-5 border-t border-stone-800/70">
-            <p className="text-[10px] text-stone-500 tracking-[0.2em] uppercase mb-3">Key Figures</p>
+          <div className="border-t border-[#D4BE98]/70 pt-4">
+            <p className="text-[10px] font-semibold text-[#7C6A52] tracking-[0.18em] uppercase mb-2">
+              Key Figures
+            </p>
             <ul className="space-y-1.5">
               {ev.rulers.map((r) => (
                 <li key={r._id}>
                   <button
                     onClick={() => onNavigateTo?.({ kind: "ruler", data: r })}
-                    className="flex items-center gap-2 text-[13px] text-stone-300 hover:text-amber-200 transition-colors group"
+                    className="flex items-center gap-2 text-[12.5px] text-[#34291F] hover:text-[#A8523B] transition-colors group cursor-pointer"
                   >
-                    <span className="text-stone-600 text-[11px]">👤</span>
-                    {r.name}
-                    <span className="text-stone-600 group-hover:text-amber-400/60 text-[11px]">→</span>
+                    <span>👤</span>
+                    <span className="font-medium">{r.name}</span>
+                    <span className="text-[#7C6A52] group-hover:text-[#A8523B]">→</span>
                   </button>
                 </li>
               ))}
@@ -535,25 +597,25 @@ function EventDetail({ event, hasBack, onBack, onNavigateTo, onExploreOnMap }) {
           </div>
         )}
 
-        {/* Polities — clickable */}
+        {/* Polities */}
         {ev.polities && ev.polities.length > 0 && (
-          <div className="mt-6 pt-5 border-t border-stone-800/70">
-            <p className="text-[10px] text-stone-500 tracking-[0.2em] uppercase mb-3">Polities</p>
+          <div className="border-t border-[#D4BE98]/70 pt-4">
+            <p className="text-[10px] font-semibold text-[#7C6A52] tracking-[0.18em] uppercase mb-2">
+              Powers Involved
+            </p>
             <ul className="space-y-1.5">
               {ev.polities.map((pol) => (
                 <li key={pol._id}>
                   <button
-                    onClick={() => {
-                      onNavigateTo?.({ kind: "polity_id", data: pol._id });
-                    }}
-                    className="flex items-center gap-2 text-[13px] text-stone-300 hover:text-amber-200 transition-colors group"
+                    onClick={() => onNavigateTo?.({ kind: "polity_id", data: pol._id })}
+                    className="flex items-center gap-2 text-[12.5px] text-[#34291F] hover:text-[#A8523B] transition-colors group cursor-pointer"
                   >
                     <span
-                      className="w-2 h-2 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: pol.colorHex || "#8a8578" }}
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: pol.colorHex || "#C28C40" }}
                     />
-                    {pol.name}
-                    <span className="text-stone-600 group-hover:text-amber-400/60 text-[11px]">→</span>
+                    <span className="font-medium">{pol.name}</span>
+                    <span className="text-[#7C6A52] group-hover:text-[#A8523B]">→</span>
                   </button>
                 </li>
               ))}
@@ -561,17 +623,19 @@ function EventDetail({ event, hasBack, onBack, onNavigateTo, onExploreOnMap }) {
           </div>
         )}
 
-        {/* Location — clickable */}
+        {/* Location */}
         {ev.place && (
-          <div className="mt-6 pt-5 border-t border-stone-800/70">
-            <p className="text-[10px] text-stone-500 tracking-[0.2em] uppercase mb-3">Location</p>
+          <div className="border-t border-[#D4BE98]/70 pt-4">
+            <p className="text-[10px] font-semibold text-[#7C6A52] tracking-[0.18em] uppercase mb-2">
+              Location
+            </p>
             <button
               onClick={() => onNavigateTo?.({ kind: "place", data: ev.place })}
-              className="flex items-center gap-2 text-[13px] text-stone-300 hover:text-amber-200 transition-colors group"
+              className="flex items-center gap-2 text-[12.5px] text-[#34291F] hover:text-[#A8523B] transition-colors group cursor-pointer"
             >
-              <span className="text-stone-600 text-[11px]">📍</span>
-              {ev.place.name}
-              <span className="text-stone-600 group-hover:text-amber-400/60 text-[11px]">→</span>
+              <span>📍</span>
+              <span className="font-medium">{ev.place.name}</span>
+              <span className="text-[#7C6A52] group-hover:text-[#A8523B]">→</span>
             </button>
           </div>
         )}
@@ -608,61 +672,73 @@ function PlaceDetail({ placeData, hasBack, onBack, onNavigateTo, onExploreOnMap 
     <div>
       <button
         onClick={onBack}
-        className="w-full text-left px-6 py-3.5 text-[11px] text-stone-500 hover:text-stone-300 transition-colors border-b border-stone-800/70 tracking-wide"
+        className="w-full text-left px-6 py-3 text-[11px] text-[#7C6A52] hover:text-[#A8523B] transition-colors border-b border-[#D4BE98] tracking-wide cursor-pointer font-medium bg-[#F2E8D5]/60"
       >
-        {hasBack ? "‹ back" : "‹ back to territories"}
+        {hasBack ? "‹ Back" : "‹ Back to Overview"}
       </button>
 
-      <div className="px-6 pt-6 pb-8">
-        {/* Place type badge */}
-        <div className="text-[10px] text-amber-600/80 tracking-[0.15em] uppercase font-semibold mb-2">
-          {(place?.type || "place").replace("_", " ")}
+      <div className="px-6 pt-5 pb-8 space-y-5">
+        <div>
+          <span className="inline-block text-[9.5px] font-semibold text-[#293E63] uppercase tracking-wider px-2 py-0.5 rounded bg-[#DDE5ED] border border-[#BACCDD] mb-2">
+            {(place?.type || "place").replace("_", " ")}
+          </span>
+
+          <h2 className="font-serif text-[23px] font-bold text-[#34291F] leading-tight">
+            {place?.name}
+          </h2>
+
+          {place?.modernState && (
+            <p className="text-[11.5px] text-[#7C6A52] mt-1 tracking-wide">
+              Now in {place.modernState}
+            </p>
+          )}
+
+          {coords && (
+            <button
+              onClick={() => {
+                const [lng, lat] = coords;
+                onExploreOnMap?.([lat, lng], null);
+              }}
+              className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 bg-[#A8523B] text-[#FAF5EB] rounded text-[11.5px] font-medium hover:bg-[#93422E] transition-colors cursor-pointer"
+            >
+              Explore on map →
+            </button>
+          )}
         </div>
 
-        <h2 className="font-display text-[22px] text-stone-50 leading-[1.2]">{place?.name}</h2>
-
-        {place?.modernState && (
-          <p className="text-[11.5px] text-stone-500 mt-1 tracking-wide">now in {place.modernState}</p>
-        )}
-
-        {/* Explore on Map */}
-        {coords && (
-          <button
-            onClick={() => {
-              const [lng, lat] = coords;
-              onExploreOnMap?.([lat, lng], null);
-            }}
-            className="inline-flex items-center gap-1.5 mt-3 text-[11.5px] text-amber-500/80 hover:text-amber-300 transition-colors"
-          >
-            Explore on map →
-          </button>
-        )}
-
         {place?.description && (
-          <p className="text-[13.5px] text-stone-300 mt-5 leading-[1.65] font-light">{place.description}</p>
+          <div className="border-t border-[#D4BE98]/70 pt-4">
+            <p className="text-[10px] font-semibold text-[#7C6A52] tracking-[0.18em] uppercase mb-1.5">
+              Description
+            </p>
+            <p className="text-[12.5px] text-[#34291F] leading-relaxed">
+              {place.description}
+            </p>
+          </div>
         )}
 
         {loading && (
-          <p className="text-[11.5px] text-stone-600 mt-4 italic">Loading…</p>
+          <p className="text-[11.5px] text-[#7C6A52] italic">Loading details…</p>
         )}
 
-        {/* Associated Polities — clickable */}
         {polities.length > 0 && (
-          <div className="mt-7 pt-5 border-t border-stone-800/70">
-            <p className="text-[10px] text-stone-500 tracking-[0.2em] uppercase mb-3">Associated Polities</p>
+          <div className="border-t border-[#D4BE98]/70 pt-4">
+            <p className="text-[10px] font-semibold text-[#7C6A52] tracking-[0.18em] uppercase mb-2">
+              Associated Powers
+            </p>
             <ul className="space-y-1.5">
               {polities.map((pol) => (
                 <li key={pol._id}>
                   <button
                     onClick={() => onNavigateTo?.({ kind: "polity_id", data: pol._id })}
-                    className="flex items-center gap-2 text-[13px] text-stone-300 hover:text-amber-200 transition-colors group"
+                    className="flex items-center gap-2 text-[12.5px] text-[#34291F] hover:text-[#A8523B] transition-colors group cursor-pointer"
                   >
                     <span
-                      className="w-2 h-2 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: pol.colorHex || "#8a8578" }}
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: pol.colorHex || "#C28C40" }}
                     />
-                    {pol.name}
-                    <span className="text-stone-600 group-hover:text-amber-400/60 text-[11px]">→</span>
+                    <span className="font-medium">{pol.name}</span>
+                    <span className="text-[#7C6A52] group-hover:text-[#A8523B]">→</span>
                   </button>
                 </li>
               ))}
@@ -670,26 +746,33 @@ function PlaceDetail({ placeData, hasBack, onBack, onNavigateTo, onExploreOnMap 
           </div>
         )}
 
-        {/* Associated Events — clickable */}
         {events.length > 0 && (
-          <div className="mt-6 pt-5 border-t border-stone-800/70">
-            <p className="text-[10px] text-stone-500 tracking-[0.2em] uppercase mb-3">Associated Events</p>
-            <ul className="space-y-2">
+          <div className="border-t border-[#D4BE98]/70 pt-4">
+            <p className="text-[10px] font-semibold text-[#7C6A52] tracking-[0.18em] uppercase mb-2">
+              Associated Events
+            </p>
+            <ul className="space-y-1.5">
               {events.map((ev) => (
                 <li key={ev._id}>
                   <button
                     onClick={() => onNavigateTo?.({ kind: "event", data: ev })}
-                    className="w-full text-left flex items-start gap-2 p-2 rounded hover:bg-stone-900/60 transition-colors group"
+                    className="w-full text-left flex items-start gap-2 p-1.5 rounded hover:bg-[#EFE4CE] transition-colors group cursor-pointer"
                   >
                     <span
-                      className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1.5"
+                      className="w-2 h-2 rounded-full mt-1 shrink-0"
                       style={{ backgroundColor: EVENT_COLORS[ev.type] || EVENT_COLORS.other }}
                     />
-                    <div className="min-w-0">
-                      <div className="text-[12.5px] text-stone-200 group-hover:text-amber-200 transition-colors leading-snug">{ev.title}</div>
-                      <div className="text-[10.5px] text-stone-500 mt-0.5 capitalize">{ev.year} · {ev.type}</div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[12px] font-medium text-[#34291F] group-hover:text-[#A8523B] leading-snug">
+                        {ev.title}
+                      </div>
+                      <div className="text-[10.5px] text-[#7C6A52] mt-0.5 capitalize">
+                        {ev.year} CE · {ev.type}
+                      </div>
                     </div>
-                    <span className="ml-auto text-stone-600 group-hover:text-amber-400/60 text-[12px] self-center flex-shrink-0">→</span>
+                    <span className="text-[#7C6A52] group-hover:text-[#A8523B] text-[11px] self-center">
+                      →
+                    </span>
                   </button>
                 </li>
               ))}
@@ -697,23 +780,21 @@ function PlaceDetail({ placeData, hasBack, onBack, onNavigateTo, onExploreOnMap 
           </div>
         )}
 
-        {/* Associated Rulers — clickable */}
         {rulers.length > 0 && (
-          <div className="mt-6 pt-5 border-t border-stone-800/70">
-            <p className="text-[10px] text-stone-500 tracking-[0.2em] uppercase mb-3">Notable Figures</p>
+          <div className="border-t border-[#D4BE98]/70 pt-4">
+            <p className="text-[10px] font-semibold text-[#7C6A52] tracking-[0.18em] uppercase mb-2">
+              Notable Figures
+            </p>
             <ul className="space-y-1.5">
               {rulers.map((r) => (
                 <li key={r._id}>
                   <button
                     onClick={() => onNavigateTo?.({ kind: "ruler", data: r })}
-                    className="flex items-center gap-2 text-[13px] text-stone-300 hover:text-amber-200 transition-colors group"
+                    className="flex items-center gap-2 text-[12.5px] text-[#34291F] hover:text-[#A8523B] transition-colors group cursor-pointer"
                   >
-                    <span className="text-stone-600 text-[11px]">👤</span>
-                    {r.name}
-                    {r.polity && (
-                      <span className="text-stone-600 text-[10.5px]">· {r.polity.name}</span>
-                    )}
-                    <span className="text-stone-600 group-hover:text-amber-400/60 text-[11px] ml-auto">→</span>
+                    <span>👤</span>
+                    <span className="font-medium">{r.name}</span>
+                    <span className="text-[#7C6A52] group-hover:text-[#A8523B]">→</span>
                   </button>
                 </li>
               ))}
@@ -748,60 +829,71 @@ function RulerDetail({ ruler, hasBack, onBack, onViewPolity, onNavigateTo, onExp
     <div>
       <button
         onClick={onBack}
-        className="w-full text-left px-6 py-3.5 text-[11px] text-stone-500 hover:text-stone-300 transition-colors border-b border-stone-800/70 tracking-wide"
+        className="w-full text-left px-6 py-3 text-[11px] text-[#7C6A52] hover:text-[#A8523B] transition-colors border-b border-[#D4BE98] tracking-wide cursor-pointer font-medium bg-[#F2E8D5]/60"
       >
-        {hasBack ? "‹ back" : "‹ back"}
+        {hasBack ? "‹ Back" : "‹ Back"}
       </button>
 
-      <div className="px-6 pt-6 pb-8">
-        {ruler.imageUrl && (
-          <img
-            src={ruler.imageUrl}
-            alt={ruler.name}
-            className="w-20 h-20 rounded-md object-cover border border-stone-800 mb-4"
-            onError={(e) => { e.target.style.display = "none"; }}
-          />
-        )}
-        <h2 className="font-display text-[23px] text-stone-50 leading-[1.15]">{ruler.name}</h2>
-        <p className="text-[11.5px] text-stone-500 mt-1.5 tracking-wide">
-          {ruler.title || "Ruler"} · {ruler.reignStart}–{ruler.reignEnd}
-        </p>
-
-        {ruler.polity?.name && (
-          <button
-            onClick={onViewPolity}
-            className="inline-flex items-center gap-1.5 mt-3 text-[11.5px] text-stone-400 hover:text-amber-300 transition-colors group"
-          >
-            <span
-              className="w-2 h-2 rounded-full"
-              style={{ backgroundColor: ruler.polity.colorHex || "#8a8578" }}
+      <div className="px-6 pt-5 pb-8 space-y-5">
+        <div>
+          {ruler.imageUrl && (
+            <img
+              src={ruler.imageUrl}
+              alt={ruler.name}
+              className="w-20 h-20 rounded-md object-cover border border-[#D4BE98] mb-3 shadow-xs"
+              onError={(e) => { e.target.style.display = "none"; }}
             />
-            {ruler.polity.name}
-            <span className="text-stone-600 group-hover:text-amber-400/70">→</span>
-          </button>
-        )}
+          )}
+          <h2 className="font-serif text-[23px] font-bold text-[#34291F] leading-tight">
+            {ruler.name}
+          </h2>
+          <p className="text-[11.5px] text-[#7C6A52] mt-1 tracking-wide">
+            {ruler.title || "Ruler"} · {ruler.reignStart}–{ruler.reignEnd} CE
+          </p>
 
-        <div className="mt-6 space-y-4 text-[13px]">
-          {ruler.birthYear && <Row label="Born" value={ruler.birthYear} />}
-          {ruler.deathYear && <Row label="Died" value={ruler.deathYear} />}
+          {ruler.polity?.name && (
+            <button
+              onClick={onViewPolity}
+              className="inline-flex items-center gap-1.5 mt-2.5 px-2.5 py-1 bg-[#EFE4CE] border border-[#D4BE98] rounded text-[11.5px] text-[#34291F] hover:text-[#A8523B] transition-colors cursor-pointer"
+            >
+              <span
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: ruler.polity.colorHex || "#C28C40" }}
+              />
+              <span className="font-medium">{ruler.polity.name}</span>
+              <span className="text-[#7C6A52]">→</span>
+            </button>
+          )}
+        </div>
+
+        <div className="border-t border-[#D4BE98]/70 pt-4 space-y-2.5 text-[12.5px]">
+          {ruler.birthYear && <Row label="Born" value={`${ruler.birthYear} CE`} />}
+          {ruler.deathYear && <Row label="Died" value={`${ruler.deathYear} CE`} />}
         </div>
 
         {ruler.bio && (
-          <p className="text-[13.5px] text-stone-300 mt-6 leading-[1.65] font-light">{ruler.bio}</p>
+          <div className="border-t border-[#D4BE98]/70 pt-4">
+            <p className="text-[10px] font-semibold text-[#7C6A52] tracking-[0.18em] uppercase mb-1.5">
+              Biography
+            </p>
+            <p className="text-[12.5px] text-[#34291F] leading-relaxed">
+              {ruler.bio}
+            </p>
+          </div>
         )}
 
-        {/* Notable places — now clickable */}
+        {/* Notable places */}
         {ruler.places && ruler.places.length > 0 && (
-          <div className="mt-7 pt-5 border-t border-stone-800/70">
-            <p className="text-[10px] text-stone-500 tracking-[0.2em] uppercase mb-3">
-              Notable places
+          <div className="border-t border-[#D4BE98]/70 pt-4">
+            <p className="text-[10px] font-semibold text-[#7C6A52] tracking-[0.18em] uppercase mb-2">
+              Notable Places
             </p>
             <ul className="space-y-1.5">
               {ruler.places.map((p) => {
                 const coords = p.location?.coordinates;
                 return (
                   <li key={p._id} className="flex items-baseline gap-2">
-                    <span className="text-stone-600 capitalize text-[10.5px]">{p.type}</span>
+                    <span className="text-[#7C6A52] capitalize text-[10.5px]">{p.type}</span>
                     <button
                       onClick={() => {
                         if (onNavigateTo) onNavigateTo({ kind: "place", data: p });
@@ -810,9 +902,9 @@ function RulerDetail({ ruler, hasBack, onBack, onViewPolity, onNavigateTo, onExp
                           onExploreOnMap([lat, lng], null);
                         }
                       }}
-                      className="text-[12.5px] text-stone-300 hover:text-amber-200 transition-colors"
+                      className="text-[12.5px] text-[#34291F] hover:text-[#A8523B] transition-colors cursor-pointer"
                     >
-                      {p.name} <span className="text-stone-600">→</span>
+                      {p.name} <span className="text-[#7C6A52]">→</span>
                     </button>
                   </li>
                 );
@@ -821,29 +913,37 @@ function RulerDetail({ ruler, hasBack, onBack, onViewPolity, onNavigateTo, onExp
           </div>
         )}
 
-        {/* Events featuring this ruler — clickable */}
+        {/* Events */}
         {loadingEvents && (
-          <p className="text-[11.5px] text-stone-600 mt-5 italic">Loading events…</p>
+          <p className="text-[11.5px] text-[#7C6A52] italic">Loading events…</p>
         )}
         {events && events.length > 0 && (
-          <div className="mt-7 pt-5 border-t border-stone-800/70">
-            <p className="text-[10px] text-stone-500 tracking-[0.2em] uppercase mb-3">Events</p>
-            <ul className="space-y-2">
+          <div className="border-t border-[#D4BE98]/70 pt-4">
+            <p className="text-[10px] font-semibold text-[#7C6A52] tracking-[0.18em] uppercase mb-2">
+              Events
+            </p>
+            <ul className="space-y-1.5">
               {events.map((ev) => (
                 <li key={ev._id}>
                   <button
                     onClick={() => onNavigateTo?.({ kind: "event", data: ev })}
-                    className="w-full text-left flex items-start gap-2 p-2 rounded hover:bg-stone-900/60 transition-colors group"
+                    className="w-full text-left flex items-start gap-2 p-1.5 rounded hover:bg-[#EFE4CE] transition-colors group cursor-pointer"
                   >
                     <span
-                      className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1.5"
+                      className="w-2 h-2 rounded-full mt-1 shrink-0"
                       style={{ backgroundColor: EVENT_COLORS[ev.type] || EVENT_COLORS.other }}
                     />
-                    <div className="min-w-0">
-                      <div className="text-[12.5px] text-stone-200 group-hover:text-amber-200 transition-colors leading-snug">{ev.title}</div>
-                      <div className="text-[10.5px] text-stone-500 mt-0.5 capitalize">{ev.year} · {ev.type}</div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[12px] font-medium text-[#34291F] group-hover:text-[#A8523B] leading-snug">
+                        {ev.title}
+                      </div>
+                      <div className="text-[10.5px] text-[#7C6A52] mt-0.5 capitalize">
+                        {ev.year} CE · {ev.type}
+                      </div>
                     </div>
-                    <span className="ml-auto text-stone-600 group-hover:text-amber-400/60 text-[12px] self-center flex-shrink-0">→</span>
+                    <span className="text-[#7C6A52] group-hover:text-[#A8523B] text-[11px] self-center">
+                      →
+                    </span>
                   </button>
                 </li>
               ))}
@@ -857,48 +957,69 @@ function RulerDetail({ ruler, hasBack, onBack, onViewPolity, onNavigateTo, onExp
   );
 }
 
-// ── Shared primitives ─────────────────────────────────────────────────────
+// ── Shared Primitives ─────────────────────────────────────────────────────
 function Row({ label, value }) {
   return (
-    <div className="flex items-baseline justify-between gap-4 pb-3 border-b border-stone-800/50">
-      <span className="text-stone-500 text-[11px] tracking-wide whitespace-nowrap">{label}</span>
-      <span className="text-stone-200 text-right">{value}</span>
+    <div className="flex items-baseline justify-between gap-4 pb-2 border-b border-[#D4BE98]/40">
+      <span className="text-[#7C6A52] text-[11px] uppercase tracking-wide whitespace-nowrap font-medium">
+        {label}
+      </span>
+      <span className="text-[#34291F] font-medium text-right">{value}</span>
     </div>
   );
 }
 
 function ConfidenceRow({ confidence }) {
-  const dotColor = { high: "#7fb069", medium: "#d4a24c", low: "#c1666b" }[confidence] || "#8a8578";
+  const isHigh = confidence === "high";
+  const isMed = confidence === "medium";
   return (
-    <div className="flex items-baseline justify-between gap-4 pb-3 border-b border-stone-800/50">
-      <span className="text-stone-500 text-[11px] tracking-wide">boundary confidence</span>
-      <span className="text-stone-200 capitalize flex items-center gap-1.5">
-        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: dotColor }} />
-        {confidence}
+    <div className="flex items-baseline justify-between gap-4 pb-2 border-b border-[#D4BE98]/40">
+      <span className="text-[#7C6A52] text-[11px] uppercase tracking-wide font-medium">
+        Boundary Confidence
       </span>
+      <div className="flex items-center gap-2">
+        <div className="flex gap-1 h-1.5 w-12">
+          <div className="flex-1 bg-[#A8523B] rounded-full" />
+          <div className={`flex-1 rounded-full ${isHigh || isMed ? "bg-[#A8523B]" : "bg-[#D4BE98]"}`} />
+          <div className={`flex-1 rounded-full ${isHigh ? "bg-[#A8523B]" : "bg-[#D4BE98]"}`} />
+        </div>
+        <span className="text-[#34291F] capitalize text-[11.5px] font-medium">
+          {confidence || "Medium"}
+        </span>
+      </div>
     </div>
   );
 }
 
 function SourcesList({ sources }) {
   if (!sources || sources.length === 0) {
-    return <p className="text-[11.5px] text-stone-600 mt-7 italic">No sources recorded for this entry yet.</p>;
+    return (
+      <div className="border-t border-[#D4BE98]/70 pt-4">
+        <p className="text-[10px] font-semibold text-[#7C6A52] tracking-[0.18em] uppercase mb-1">
+          Sources
+        </p>
+        <p className="text-[11.5px] text-[#7C6A52] italic">
+          Wikidata; DBpedia; hand-digitized territory polygons
+        </p>
+      </div>
+    );
   }
   return (
-    <div className="mt-7 pt-5 border-t border-stone-800/70">
-      <p className="text-[10px] text-stone-500 tracking-[0.2em] uppercase mb-3">Sources</p>
-      <ul className="space-y-2.5">
+    <div className="border-t border-[#D4BE98]/70 pt-4">
+      <p className="text-[10px] font-semibold text-[#7C6A52] tracking-[0.18em] uppercase mb-2">
+        Sources
+      </p>
+      <ul className="space-y-1.5">
         {sources.map((s) => (
           <li key={s._id}>
             <a
               href={s.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[12.5px] text-stone-400 hover:text-stone-100 transition-colors leading-snug flex items-baseline gap-1.5 group"
+              className="text-[12px] text-[#7C6A52] hover:text-[#A8523B] transition-colors leading-snug flex items-baseline gap-1 group underline decoration-[#D4BE98] underline-offset-2"
             >
-              <span className="underline decoration-stone-700 group-hover:decoration-stone-400 underline-offset-2 decoration-1">
-                {s.title}
-              </span>
+              <span>{s.title}</span>
+              <span className="text-[10px]">↗</span>
             </a>
           </li>
         ))}
