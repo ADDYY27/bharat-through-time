@@ -1,69 +1,51 @@
- @import "tailwindcss";
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Fraunces", Georgia, serif;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  --color-parchment: #F2E8D5;
+  --color-parchment-light: #FAF5EB;
+  --color-parchment-warm: #EFE4CE;
+  --color-sandstone: #E8D8B8;
+  --color-sandstone-light: #F1E5CD;
+  --color-sandstone-dark: #D4BE98;
+  --color-terracotta: #A8523B;
+  --color-terracotta-hover: #93422E;
+  --color-terracotta-light: #F4DFD7;
+  --color-indigo: #293E63;
+  --color-ochre: #C28C40;
+  --color-map-charcoal: #0E1112;
+  --color-ink: #34291F;
+  --color-ink-muted: #7C6A52;
+  --color-ink-faint: #9C8975;
+  --color-border-subtle: #DECDB3;
+  --color-border-sandstone: #D4BE98;
+}
+
+:root {
+  --bg-parchment: #F2E8D5;
+  --bg-sandstone: #E8D8B8;
+  --text-ink: #34291F;
+  --text-muted: #7C6A52;
+  --accent-terracotta: #A8523B;
+  --accent-indigo: #293E63;
+  --border-color: #D4BE98;
+  --map-bg: #0E1112;
+
+  font-family: var(--font-sans);
+  color: var(--text-ink);
+  background-color: var(--bg-parchment);
+  color-scheme: light;
+}
 
 html, body, #root {
   height: 100%;
   margin: 0;
-}
-
-
-
-
-
-
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
-
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
-
-body {
-  margin: 0;
+  padding: 0;
+  background-color: #F2E8D5;
+  color: #34291F;
 }
 
 #root {
@@ -74,63 +56,167 @@ body {
   box-sizing: border-box;
 }
 
-/* Sidebar information rail — responsive width */
+/* Sidebar responsive rail — independently scrollable */
 .sidebar-rail {
   width: 380px;
   flex-shrink: 0;
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+@media (max-width: 767px) {
+  .sidebar-rail {
+    width: 100%;
+  }
 }
 @media (min-width: 1280px) {
-  .sidebar-rail { width: 460px; }
+  .sidebar-rail { width: 420px; }
 }
 @media (min-width: 1536px) {
-  .sidebar-rail { width: 520px; }
+  .sidebar-rail { width: 460px; }
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+/* Custom scrollbars with warm sandstone feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #EAE0CB;
+}
+::-webkit-scrollbar-thumb {
+  background: #CDBBA0;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #A8523B;
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
+/* Leaflet Map overrides for the Indian Heritage dark map workspace */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  background-color: #0E1112 !important;
+  font-family: var(--font-sans);
 }
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
+
+/* Charcoal Indian Heritage basemap filter for OpenStreetMap tiles */
+.heritage-dark-tiles .leaflet-tile {
+  filter: invert(100%) hue-rotate(180deg) brightness(78%) contrast(115%) saturate(15%);
 }
-p {
+
+.leaflet-top.leaflet-left .leaflet-control-zoom {
+  display: none !important;
+}
+
+.leaflet-bar {
+  border: 1px solid #D4BE98 !important;
+  border-radius: 6px !important;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(20, 16, 12, 0.18) !important;
+}
+
+.leaflet-bar a {
+  background-color: #F2E8D5 !important;
+  color: #34291F !important;
+  border-bottom: 1px solid #DECDB3 !important;
+  width: 30px !important;
+  height: 30px !important;
+  line-height: 30px !important;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.leaflet-bar a:hover {
+  background-color: #E8D8B8 !important;
+  color: #A8523B !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background-color: #FAF5EB !important;
+  color: #34291F !important;
+  border: 1px solid #D4BE98 !important;
+  border-radius: 6px !important;
+  box-shadow: 0 8px 24px rgba(20, 16, 12, 0.22) !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.leaflet-popup-content {
+  margin: 14px 16px !important;
+  line-height: 1.5;
+}
+
+.leaflet-popup-tip {
+  background-color: #FAF5EB !important;
+  box-shadow: 0 4px 12px rgba(20, 16, 12, 0.15);
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  color: #7C6A52 !important;
+  padding: 6px 8px 0 0 !important;
+}
+.leaflet-container a.leaflet-popup-close-button:hover {
+  color: #A8523B !important;
+}
+
+.leaflet-control-attribution {
+  background: rgba(242, 232, 213, 0.85) !important;
+  color: #7C6A52 !important;
+  font-size: 9.5px !important;
+  backdrop-filter: blur(2px);
+  padding: 2px 8px !important;
+  border-top-left-radius: 4px;
+}
+.leaflet-control-attribution a {
+  color: #A8523B !important;
+}
+
+/* Timeline scrubber custom styling */
+input[type="range"].timeline-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  background: #D4BE98;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
   margin: 0;
+  padding: 0;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+input[type="range"].timeline-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #A8523B;
+  border: 2px solid #FAF5EB;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition: transform 0.12s ease, background-color 0.12s ease;
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+input[type="range"].timeline-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  background: #93422E;
 }
 
- 
+input[type="range"].timeline-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #A8523B;
+  border: 2px solid #FAF5EB;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition: transform 0.12s ease, background-color 0.12s ease;
+}
 
-
- 
+input[type="range"].timeline-slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  background: #93422E;
+}
