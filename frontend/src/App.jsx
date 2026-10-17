@@ -2,6 +2,7 @@ import { useState } from "react";
 import HistoryMap from "./components/HistoryMap";
 import Sidebar from "./components/Sidebar";
 import CompareView from "./components/CompareView";
+import StoryView from "./components/StoryView";
 
 const MIN_YEAR = 1700;
 const MAX_YEAR = 1820;
@@ -105,6 +106,15 @@ function App() {
     setMobilePanel("sidebar");
   }
 
+  const [compareYearA, setCompareYearA] = useState(1739);
+  const [compareYearB, setCompareYearB] = useState(1780);
+
+  function handleCompareJump(yearA, yearB) {
+    if (yearA) setCompareYearA(yearA);
+    if (yearB) setCompareYearB(yearB);
+    setActiveTab("compare");
+  }
+
   const isCompareMode = activeTab === "compare";
 
   // Calculate timeline progress percentage for filled track styling
@@ -168,29 +178,31 @@ function App() {
                 </span>
               </div>
 
-              {/* Mobile View Toggle (Map vs Sidebar) */}
-              <div className="flex md:hidden items-center bg-[#FAF5EB] border border-[#D4BE98] rounded-md p-0.5 text-[11px]">
-                <button
-                  onClick={() => setMobilePanel("map")}
-                  className={`px-2.5 py-1 rounded transition-colors ${
-                    mobilePanel === "map"
-                      ? "bg-[#A8523B] text-[#FAF5EB] font-medium"
-                      : "text-[#7C6A52]"
-                  }`}
-                >
-                  Map
-                </button>
-                <button
-                  onClick={() => setMobilePanel("sidebar")}
-                  className={`px-2.5 py-1 rounded transition-colors ${
-                    mobilePanel === "sidebar"
-                      ? "bg-[#A8523B] text-[#FAF5EB] font-medium"
-                      : "text-[#7C6A52]"
-                  }`}
-                >
-                  Context ({territories.length})
-                </button>
-              </div>
+              {/* Mobile View Toggle (Map vs Sidebar for Historical Map tab) */}
+              {activeTab === "map" && (
+                <div className="flex md:hidden items-center bg-[#FAF5EB] border border-[#D4BE98] rounded-md p-0.5 text-[11px]">
+                  <button
+                    onClick={() => setMobilePanel("map")}
+                    className={`px-2.5 py-1 rounded transition-colors ${
+                      mobilePanel === "map"
+                        ? "bg-[#A8523B] text-[#FAF5EB] font-medium"
+                        : "text-[#7C6A52]"
+                    }`}
+                  >
+                    Map
+                  </button>
+                  <button
+                    onClick={() => setMobilePanel("sidebar")}
+                    className={`px-2.5 py-1 rounded transition-colors ${
+                      mobilePanel === "sidebar"
+                        ? "bg-[#A8523B] text-[#FAF5EB] font-medium"
+                        : "text-[#7C6A52]"
+                    }`}
+                  >
+                    Context ({territories.length})
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Slider Track with Era Milestones */}
@@ -243,27 +255,14 @@ function App() {
         )}
       </header>
 
-      {/* ── Main View Area ───────────────────────────────────────────── */}
       {isCompareMode ? (
-        <CompareView />
+        <CompareView initialYearA={compareYearA} initialYearB={compareYearB} />
       ) : activeTab === "story" ? (
-        <div className="flex-1 flex items-center justify-center p-8 bg-[#FAF5EB] text-center">
-          <div className="max-w-md p-6 bg-[#F2E8D5] border border-[#D4BE98] rounded-md shadow-xs">
-            <h2 className="font-serif text-[22px] font-bold text-[#34291F] mb-2">
-              Timeline / Story View
-            </h2>
-            <p className="text-[13px] text-[#7C6A52] leading-relaxed mb-4">
-              Story mode chapters (such as "The rise of Mysore") are scheduled for Part 2.
-              Explore the interactive Historical Map for {year} CE.
-            </p>
-            <button
-              onClick={() => setActiveTab("map")}
-              className="px-4 py-2 bg-[#A8523B] text-[#FAF5EB] text-[12.5px] font-medium rounded hover:bg-[#93422E] transition-colors cursor-pointer"
-            >
-              Return to Historical Map
-            </button>
-          </div>
-        </div>
+        <StoryView
+          currentYear={year}
+          onYearChange={setYear}
+          onCompareJump={handleCompareJump}
+        />
       ) : activeTab === "explore" ? (
         <div className="flex-1 flex items-center justify-center p-8 bg-[#FAF5EB] text-center">
           <div className="max-w-md p-6 bg-[#F2E8D5] border border-[#D4BE98] rounded-md shadow-xs">

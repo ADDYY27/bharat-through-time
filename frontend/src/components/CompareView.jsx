@@ -1,9 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CompareMapPanel from "./CompareMapPanel";
 
-export default function CompareView() {
-  const [yearA, setYearA] = useState(1739);
-  const [yearB, setYearB] = useState(1780);
+export default function CompareView({ initialYearA = 1739, initialYearB = 1780 }) {
+  const [yearA, setYearA] = useState(initialYearA);
+  const [yearB, setYearB] = useState(initialYearB);
+
+  useEffect(() => {
+    if (initialYearA) setYearA(initialYearA);
+  }, [initialYearA]);
+
+  useEffect(() => {
+    if (initialYearB) setYearB(initialYearB);
+  }, [initialYearB]);
 
   return (
     <div className="flex-1 flex overflow-hidden bg-[#FAF5EB]">
@@ -13,3 +21,4 @@ export default function CompareView() {
     </div>
   );
 }
+
