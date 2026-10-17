@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import EntityProfileModal from "./EntityProfileModal";
-
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+import { fetchApi } from "../utils/api";
 
 const ENTITY_CONFIG = {
   all: { label: "All Records", badge: "bg-[#EAE0CB] text-[#7C6A52] border-[#D4BE98]" },
@@ -81,11 +80,8 @@ export default function ExploreView({ onExploreOnMap }) {
   useEffect(() => {
     let isMounted = true;
     setLoading(true);
-    fetch(`${API_BASE}/search`)
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
+    setError(null);
+    fetchApi("/search", {}, 1, 15000)
       .then((data) => {
         if (isMounted) {
           setItems(data.results || []);

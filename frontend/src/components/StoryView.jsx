@@ -12,9 +12,7 @@ import {
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { STORIES, POWER_TIMELINES } from "../data/storyData";
-
-const API_BASE =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+import { fetchApi } from "../utils/api";
 
 // Factory for numbered chapter map icons
 function createChapterMarkerIcon(chapterNumber, isActive) {
@@ -123,9 +121,7 @@ export default function StoryView({
       if (!activeChapter) return;
       setLoadingTerritories(true);
       try {
-        const res = await fetch(`${API_BASE}/history/${activeChapter.year}`);
-        if (!res.ok) throw new Error("Failed to fetch territories");
-        const data = await res.json();
+        const data = await fetchApi(`/history/${activeChapter.year}`, {}, 1, 15000);
         if (!cancelled) setTerritories(data.territories || []);
       } catch {
         if (!cancelled) setTerritories([]);

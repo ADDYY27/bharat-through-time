@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-
-const API_BASE =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+import { API_BASE } from "../utils/api";
 
 // ── Indian Heritage Event Colors ──────────────────────────────────────────
 const EVENT_COLORS = {

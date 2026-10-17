@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-
-const API_BASE =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+import { fetchApi } from "../utils/api";
 
 const CATEGORY_ORDER = ["event", "ruler", "place", "polity"];
 const CATEGORY_LABEL = { event: "Events", ruler: "People", place: "Places", polity: "Polities" };
@@ -19,8 +17,7 @@ export default function SearchBox({ onJump }) {
   const containerRef = useRef(null);
 
   useEffect(() => {
-    fetch(`${API_BASE}/search`)
-      .then((res) => res.json())
+    fetchApi("/search", {}, 1, 15000)
       .then((data) => setAllResults(data.results || []))
       .catch(() => setAllResults([]));
   }, []);

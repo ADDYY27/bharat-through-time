@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+import { fetchApi } from "../utils/api";
 
 const KIND_THEMES = {
   polity: {
@@ -78,11 +77,7 @@ export default function EntityProfileModal({
     const kind = currentEntity.kind;
     const id = currentEntity.id;
 
-    fetch(`${API_BASE}/history/${kind}/${id}`)
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
+    fetchApi(`/history/${kind}/${id}`, {}, 1, 15000)
       .then((data) => {
         if (isMounted) {
           setDetailData(data);

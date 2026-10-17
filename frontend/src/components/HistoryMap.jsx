@@ -1,12 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { MapContainer, TileLayer, GeoJSON, Popup, CircleMarker, Marker, ZoomControl, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import LayerControl from "./LayerControl";
 import SearchBox from "./SearchBox";
+import { fetchApi } from "../utils/api";
 
-const API_BASE =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const EVENT_WINDOW = 18;
 
 // Antique diamond city marker with sandstone core and indigo ring
@@ -58,33 +57,31 @@ export default function HistoryMap({
   const [error, setError] = useState(null);
   const [activeLayers, setActiveLayers] = useState(["political", "battle", "cities"]);
 
-  useEffect(() => {
-    async function loadHistory() {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch(`${API_BASE}/history/${year}`);
-        if (!res.ok) throw new Error(`Server returned ${res.status}`);
-        const data = await res.json();
-        setTerritories(data.territories || []);
-        setEvents(data.events || []);
-        setPlaces(data.places || []);
-        onDataLoaded?.(data.territories || []);
-        onRulersLoaded?.(data.rulers || []);
-      } catch (err) {
-        setError(err.message);
-        setTerritories([]);
-        setEvents([]);
-        setPlaces([]);
-        onDataLoaded?.([]);
-        onRulersLoaded?.([]);
-      } finally {
-        setLoading(false);
-      }
+  const loadHistory = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await fetchApi(`/history/${year}`, {}, 1, 15000);
+      setTerritories(data.territories || []);
+      setEvents(data.events || []);
+      setPlaces(data.places || []);
+      onDataLoaded?.(data.territories || []);
+      onRulersLoaded?.(data.rulers || []);
+    } catch (err) {
+      setError(err.message || "Failed to load historical data");
+      setTerritories([]);
+      setEvents([]);
+      setPlaces([]);
+      onDataLoaded?.([]);
+      onRulersLoaded?.([]);
+    } finally {
+      setLoading(false);
     }
+  }, [year, onDataLoaded, onRulersLoaded]);
+
+  useEffect(() => {
     loadHistory();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [year]);
+  }, [loadHistory]);
 
   function toggleLayer(id) {
     setActiveLayers((prev) =>
@@ -325,8 +322,14 @@ export default function HistoryMap({
         </div>
       )}
       {error && (
-        <div className="absolute top-[68px] left-4 bg-[#F4DFD7] text-[#A8523B] text-[11.5px] px-3 py-1.5 rounded-md z-[1000] border border-[#E5BDB2] shadow-sm">
-          {error}
+        <div className="absolute top-[68px] left-4 right-4 sm:right-auto bg-[#F4DFD7] text-[#A8523B] text-[11.5px] px-3 py-1.5 rounded-md z-[1000] border border-[#E5BDB2] shadow-sm flex items-center justify-between gap-3">
+          <span>{error}</span>
+          <button
+            onClick={() => loadHistory()}
+            className="text-[11px] underline font-semibold hover:text-[#93422E] cursor-pointer shrink-0"
+          >
+            Retry
+          </button>
         </div>
       )}
     </div>

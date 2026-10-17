@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, GeoJSON, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import { fetchApi } from "../utils/api";
 
-const API_BASE =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const MIN_YEAR = 1700;
 const MAX_YEAR = 1820;
 
@@ -16,8 +15,7 @@ export default function CompareMapPanel({ year, onYearChange, label }) {
     async function load() {
       setLoading(true);
       try {
-        const res = await fetch(`${API_BASE}/history/${year}`);
-        const data = await res.json();
+        const data = await fetchApi(`/history/${year}`, {}, 1, 15000);
         if (!cancelled) setTerritories(data.territories || []);
       } catch {
         if (!cancelled) setTerritories([]);
