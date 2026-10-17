@@ -3,6 +3,7 @@ import HistoryMap from "./components/HistoryMap";
 import Sidebar from "./components/Sidebar";
 import CompareView from "./components/CompareView";
 import StoryView from "./components/StoryView";
+import ExploreView from "./components/ExploreView";
 
 const MIN_YEAR = 1700;
 const MAX_YEAR = 1820;
@@ -264,23 +265,26 @@ function App() {
           onCompareJump={handleCompareJump}
         />
       ) : activeTab === "explore" ? (
-        <div className="flex-1 flex items-center justify-center p-8 bg-[#FAF5EB] text-center">
-          <div className="max-w-md p-6 bg-[#F2E8D5] border border-[#D4BE98] rounded-md shadow-xs">
-            <h2 className="font-serif text-[22px] font-bold text-[#34291F] mb-2">
-              Explore View
-            </h2>
-            <p className="text-[13px] text-[#7C6A52] leading-relaxed mb-4">
-              Topic cards across civilisations, empires, battles, people, and places will arrive in
-              the next phase. Use the search box or sidebar on the Historical Map.
-            </p>
-            <button
-              onClick={() => setActiveTab("map")}
-              className="px-4 py-2 bg-[#A8523B] text-[#FAF5EB] text-[12.5px] font-medium rounded hover:bg-[#93422E] transition-colors cursor-pointer"
-            >
-              Return to Historical Map
-            </button>
-          </div>
-        </div>
+        <ExploreView
+          onExploreOnMap={(item) => {
+            if (item.jumpYear) setYear(item.jumpYear);
+            if (item.placeData?.location?.coordinates) {
+              const [lng, lat] = item.placeData.location.coordinates;
+              setMapFlyTo({ center: [lat, lng], ts: Date.now() });
+            }
+            if (item.kind === "polity") {
+              selectPolity(item.id || item.polityId);
+            } else if (item.kind === "ruler") {
+              selectRuler({ jumpYear: item.jumpYear, polityId: item.polityId, ruler: item.ruler });
+            } else if (item.kind === "event") {
+              navigateTo({ kind: "event", data: item.event });
+            } else if (item.kind === "place") {
+              navigateTo({ kind: "place", data: item.placeData });
+            }
+            setActiveTab("map");
+            setMobilePanel("map");
+          }}
+        />
       ) : (
         <main className="flex-1 flex flex-col md:flex-row overflow-hidden relative min-h-0">
           {/* Map canvas */}
