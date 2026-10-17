@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import EntityProfileModal from "./EntityProfileModal";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
@@ -60,6 +60,23 @@ export default function ExploreView({ onExploreOnMap }) {
   const [selectedEra, setSelectedEra] = useState("all");
   const [sortBy, setSortBy] = useState("relevance"); // "relevance" | "year-asc" | "year-desc" | "name"
   const [selectedEntity, setSelectedEntity] = useState(null);
+  const searchInputRef = useRef(null);
+
+  // Keyboard shortcut: '/' focuses search input
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (
+        e.key === "/" &&
+        document.activeElement !== searchInputRef.current &&
+        !["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName)
+      ) {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -214,24 +231,31 @@ export default function ExploreView({ onExploreOnMap }) {
             {/* Prominent Search Input */}
             <div className="relative flex-1">
               <input
+                ref={searchInputRef}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by name, title, battle, dynasty, city, outcome, or state…"
-                className="w-full bg-[#FAF5EB] border border-[#D4BE98] rounded-md pl-10 pr-9 py-2.5 text-[13.5px] text-[#34291F] placeholder:text-[#9C8975] focus:outline-none focus:border-[#A8523B] focus:ring-1 focus:ring-[#A8523B]/30 transition-all shadow-inner"
+                className="w-full bg-[#FAF5EB] border border-[#D4BE98] rounded-md pl-10 pr-16 py-2.5 text-[13.5px] text-[#34291F] placeholder:text-[#9C8975] focus:outline-none focus:border-[#A8523B] focus:ring-1 focus:ring-[#A8523B]/30 transition-all shadow-inner"
               />
               <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#7C6A52] text-[14px]">
                 🔍
               </span>
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-[#7C6A52] hover:text-[#34291F] px-1.5 py-0.5 rounded cursor-pointer"
-                  title="Clear search"
-                >
-                  ✕
-                </button>
-              )}
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                {searchQuery ? (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="text-[11px] text-[#7C6A52] hover:text-[#34291F] px-1.5 py-0.5 rounded cursor-pointer"
+                    title="Clear search"
+                  >
+                    ✕
+                  </button>
+                ) : (
+                  <kbd className="hidden sm:inline-block text-[10px] text-[#7C6A52] bg-[#EFE4CE] border border-[#D4BE98] rounded px-1.5 py-0.5 font-mono">
+                    /
+                  </kbd>
+                )}
+              </div>
             </div>
 
             {/* Sort Dropdown */}
@@ -377,22 +401,38 @@ export default function ExploreView({ onExploreOnMap }) {
               <p className="text-[12.5px] text-[#7C6A52]">{error}</p>
             </div>
           ) : filteredItems.length === 0 ? (
-            <div className="py-16 text-center space-y-3 max-w-md mx-auto">
-              <p className="font-serif text-[17px] font-bold text-[#34291F]">
+            <div className="py-16 text-center space-y-4 max-w-md mx-auto">
+              <p className="font-serif text-[18px] font-bold text-[#34291F]">
                 No matching historical entities
               </p>
-              <p className="text-[13px] text-[#7C6A52]">
+              <p className="text-[13px] text-[#7C6A52] leading-relaxed">
                 We couldn't find records matching "{searchQuery}" under the current filter.
               </p>
+              <div className="flex flex-wrap justify-center gap-1.5 pt-1">
+                <span className="text-[11px] text-[#7C6A52] self-center mr-1">Try:</span>
+                {["Maratha", "Mysore", "Delhi", "Panipat", "Plassey", "Peshwa"].map((term) => (
+                  <button
+                    key={term}
+                    onClick={() => {
+                      setSearchQuery(term);
+                      setSelectedKind("all");
+                      setSelectedEra("all");
+                    }}
+                    className="text-[11px] px-2 py-0.5 rounded bg-[#F2E8D5] border border-[#D4BE98] hover:border-[#A8523B] hover:text-[#A8523B] transition-colors cursor-pointer"
+                  >
+                    {term}
+                  </button>
+                ))}
+              </div>
               <button
                 onClick={() => {
                   setSearchQuery("");
                   setSelectedKind("all");
                   setSelectedEra("all");
                 }}
-                className="px-3.5 py-1.5 bg-[#A8523B] text-[#FAF5EB] text-[12px] font-medium rounded hover:bg-[#93422E] transition-colors cursor-pointer"
+                className="px-3.5 py-1.5 bg-[#A8523B] text-[#FAF5EB] text-[12px] font-medium rounded hover:bg-[#93422E] transition-colors cursor-pointer inline-block"
               >
-                Reset filters
+                Reset all filters
               </button>
             </div>
           ) : (

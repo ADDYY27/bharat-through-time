@@ -266,20 +266,32 @@ function App() {
         />
       ) : activeTab === "explore" ? (
         <ExploreView
-          onExploreOnMap={(item) => {
-            if (item.jumpYear) setYear(item.jumpYear);
-            if (item.placeData?.location?.coordinates) {
-              const [lng, lat] = item.placeData.location.coordinates;
-              setMapFlyTo({ center: [lat, lng], ts: Date.now() });
+          onExploreOnMap={(item, coords, jumpYear) => {
+            const targetYear = jumpYear || item.jumpYear;
+            if (targetYear) setYear(targetYear);
+
+            let center = null;
+            const rawCoords = coords || item.placeData?.location?.coordinates;
+            if (rawCoords && Array.isArray(rawCoords) && rawCoords.length === 2) {
+              // Convert GeoJSON [lng, lat] to Leaflet [lat, lng]
+              if (rawCoords[0] > 50 && rawCoords[1] < 50) {
+                center = [rawCoords[1], rawCoords[0]];
+              } else {
+                center = rawCoords;
+              }
             }
+            if (center) {
+              setMapFlyTo({ center, zoom: 7, ts: Date.now() });
+            }
+
             if (item.kind === "polity") {
               selectPolity(item.id || item.polityId);
             } else if (item.kind === "ruler") {
-              selectRuler({ jumpYear: item.jumpYear, polityId: item.polityId, ruler: item.ruler });
+              selectRuler({ jumpYear: targetYear, polityId: item.polityId, ruler: item.ruler });
             } else if (item.kind === "event") {
-              navigateTo({ kind: "event", data: item.event });
+              navigateTo({ kind: "event", data: item.event || item });
             } else if (item.kind === "place") {
-              navigateTo({ kind: "place", data: item.placeData });
+              navigateTo({ kind: "place", data: item.placeData || item });
             }
             setActiveTab("map");
             setMobilePanel("map");

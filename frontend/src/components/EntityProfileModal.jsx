@@ -192,13 +192,13 @@ export default function EntityProfileModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-xs transition-opacity"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 bg-black/60 backdrop-blur-xs transition-opacity"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
     >
       <div
-        className="relative w-full max-w-3xl max-h-[90vh] bg-[#FAF5EB] border border-[#D4BE98] rounded-lg shadow-2xl flex flex-col overflow-hidden text-[#34291F] animate-in fade-in zoom-in-95 duration-150"
+        className="relative w-full max-w-3xl max-h-[92vh] sm:max-h-[90vh] bg-[#FAF5EB] border-t sm:border border-[#D4BE98] rounded-t-xl sm:rounded-lg shadow-2xl flex flex-col overflow-hidden text-[#34291F] animate-in fade-in slide-in-from-bottom-6 sm:zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         {/* ── Top Header Navigation Bar & Breadcrumb ─────────────────────── */}
