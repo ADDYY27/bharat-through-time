@@ -564,7 +564,7 @@ export default function StoryView({
             </MapContainer>
 
             {/* Floating Chapter Narrative Card (matching Figma position and typography) */}
-            <div className="absolute top-4 left-4 z-[1000] max-w-sm sm:max-w-md bg-[#FAF5EB]/95 backdrop-blur-xs border border-[#D4BE98] rounded-md p-4 shadow-md pointer-events-auto transition-all duration-300">
+            <div className="absolute top-4 left-4 right-4 sm:right-auto max-w-sm sm:max-w-md bg-[#FAF5EB]/95 backdrop-blur-xs border border-[#D4BE98] rounded-md p-3.5 sm:p-4 shadow-md pointer-events-auto transition-all duration-300">
               <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.16em] text-[#7C6A52] mb-1">
                 <span>
                   CHAPTER {activeChapter.number} OF {currentStory.totalChapters}

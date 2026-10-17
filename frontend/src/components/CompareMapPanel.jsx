@@ -36,18 +36,20 @@ export default function CompareMapPanel({ year, onYearChange, label }) {
   return (
     <div className="flex-1 flex flex-col min-w-0 bg-[#FAF5EB]">
       {/* Top Header */}
-      <div className="px-5 py-3 bg-[#FAF5EB] border-b border-[#D4BE98] shadow-xs">
-        <div className="flex items-center gap-3">
-          <span className="text-[10px] text-[#7C6A52] tracking-[0.18em] uppercase font-semibold">
-            {label}
-          </span>
-          <div className="flex items-baseline gap-1">
-            <span className="font-serif text-[22px] font-bold text-[#A8523B] tabular-nums leading-none">
-              {year}
+      <div className="px-3 sm:px-5 py-2.5 sm:py-3 bg-[#FAF5EB] border-b border-[#D4BE98] shadow-xs shrink-0">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+          <div className="flex items-center justify-between sm:justify-start gap-2.5 shrink-0">
+            <span className="text-[10px] text-[#7C6A52] tracking-[0.18em] uppercase font-semibold">
+              {label}
             </span>
-            <span className="text-[9.5px] font-semibold text-[#7C6A52] uppercase">
-              CE
-            </span>
+            <div className="flex items-baseline gap-1">
+              <span className="font-serif text-[20px] sm:text-[22px] font-bold text-[#A8523B] tabular-nums leading-none">
+                {year}
+              </span>
+              <span className="text-[9.5px] font-semibold text-[#7C6A52] uppercase">
+                CE
+              </span>
+            </div>
           </div>
           <input
             type="range"
@@ -59,7 +61,8 @@ export default function CompareMapPanel({ year, onYearChange, label }) {
             style={{
               background: `linear-gradient(to right, #A8523B 0%, #A8523B ${sliderProgress}%, #D4BE98 ${sliderProgress}%, #D4BE98 100%)`,
             }}
-            className="timeline-slider flex-1"
+            className="timeline-slider flex-1 w-full"
+            aria-label={`${label} timeline slider`}
           />
         </div>
       </div>
