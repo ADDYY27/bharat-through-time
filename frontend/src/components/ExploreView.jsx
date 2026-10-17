@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import EntityProfileModal from "./EntityProfileModal";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
@@ -9,6 +10,14 @@ const ENTITY_CONFIG = {
   place: { label: "Places & Capitals", badge: "bg-[#DDE5ED] text-[#293E63] border-[#BACCDD]" },
   event: { label: "Events & Battles", badge: "bg-[#F4DFD7] text-[#A8523B] border-[#E5BDB2]" },
 };
+
+const ERA_FILTERS = [
+  { id: "all", label: "All Eras (1700–1820)" },
+  { id: "early", label: "Early 18th C. (1700–1730)", min: 1700, max: 1730 },
+  { id: "mid", label: "Mid 18th C. (1731–1770)", min: 1731, max: 1770 },
+  { id: "late", label: "Late 18th C. (1771–1800)", min: 1771, max: 1800 },
+  { id: "early19", label: "Early 19th C. (1801–1820)", min: 1801, max: 1820 },
+];
 
 // Curated thematic collections based on actual database entities
 const CURATED_THEMES = [
@@ -48,6 +57,9 @@ export default function ExploreView({ onExploreOnMap }) {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedKind, setSelectedKind] = useState("all");
+  const [selectedEra, setSelectedEra] = useState("all");
+  const [sortBy, setSortBy] = useState("relevance"); // "relevance" | "year-asc" | "year-desc" | "name"
+  const [selectedEntity, setSelectedEntity] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -87,15 +99,67 @@ export default function ExploreView({ onExploreOnMap }) {
   // Filter items
   const filteredItems = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    return items.filter((item) => {
+    const eraConfig = ERA_FILTERS.find((e) => e.id === selectedEra);
+
+    const filtered = items.filter((item) => {
+      // 1. Kind filter
       const matchKind = selectedKind === "all" || item.kind === selectedKind;
       if (!matchKind) return false;
+
+      // 2. Era filter
+      if (eraConfig && eraConfig.min !== undefined && eraConfig.max !== undefined) {
+        const itemYear =
+          item.jumpYear ||
+          item.event?.year ||
+          item.ruler?.reignStart ||
+          item.ruler?.birthYear;
+
+        // If entity has no date (e.g. general places), keep them only on "all"
+        if (itemYear !== null && itemYear !== undefined) {
+          if (itemYear < eraConfig.min || itemYear > eraConfig.max) return false;
+        } else {
+          return false;
+        }
+      }
+
+      // 3. Search query
       if (!q) return true;
       const label = (item.label || "").toLowerCase();
       const sublabel = (item.sublabel || "").toLowerCase();
-      return label.includes(q) || sublabel.includes(q);
+      const bio = (item.ruler?.bio || "").toLowerCase();
+      const desc = (item.event?.description || item.placeData?.description || "").toLowerCase();
+      const outcome = (item.event?.outcome || "").toLowerCase();
+      const state = (item.placeData?.modernState || "").toLowerCase();
+
+      return (
+        label.includes(q) ||
+        sublabel.includes(q) ||
+        bio.includes(q) ||
+        desc.includes(q) ||
+        outcome.includes(q) ||
+        state.includes(q)
+      );
     });
-  }, [items, selectedKind, searchQuery]);
+
+    // 4. Sort results
+    return filtered.sort((a, b) => {
+      if (sortBy === "year-asc") {
+        const yA = a.jumpYear ?? 9999;
+        const yB = b.jumpYear ?? 9999;
+        return yA - yB;
+      }
+      if (sortBy === "year-desc") {
+        const yA = a.jumpYear ?? -9999;
+        const yB = b.jumpYear ?? -9999;
+        return yB - yA;
+      }
+      if (sortBy === "name") {
+        return (a.label || "").localeCompare(b.label || "");
+      }
+      // "relevance" / default
+      return 0;
+    });
+  }, [items, selectedKind, selectedEra, searchQuery, sortBy]);
 
   return (
     <div className="flex-1 overflow-y-auto bg-[#FAF5EB] text-[#34291F] flex flex-col">
@@ -144,7 +208,7 @@ export default function ExploreView({ onExploreOnMap }) {
       </section>
 
       {/* ── Search & Filter Controls Workspace ───────────────────────────── */}
-      <section className="sticky top-0 z-20 bg-[#FAF5EB]/95 backdrop-blur-md border-b border-[#D4BE98] px-4 sm:px-8 py-4 shadow-xs">
+      <section className="sticky top-0 z-20 bg-[#FAF5EB]/95 backdrop-blur-md border-b border-[#D4BE98] px-4 sm:px-8 py-3.5 shadow-xs space-y-3">
         <div className="max-w-6xl mx-auto space-y-3">
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             {/* Prominent Search Input */}
@@ -153,7 +217,7 @@ export default function ExploreView({ onExploreOnMap }) {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by name, title, battle, dynasty, city, or event…"
+                placeholder="Search by name, title, battle, dynasty, city, outcome, or state…"
                 className="w-full bg-[#FAF5EB] border border-[#D4BE98] rounded-md pl-10 pr-9 py-2.5 text-[13.5px] text-[#34291F] placeholder:text-[#9C8975] focus:outline-none focus:border-[#A8523B] focus:ring-1 focus:ring-[#A8523B]/30 transition-all shadow-inner"
               />
               <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#7C6A52] text-[14px]">
@@ -170,9 +234,24 @@ export default function ExploreView({ onExploreOnMap }) {
               )}
             </div>
 
-            {/* Quick Count Badge */}
-            <div className="hidden sm:flex items-center text-[12px] text-[#7C6A52] px-3 py-2 bg-[#F2E8D5] border border-[#D4BE98] rounded-md shrink-0">
-              Showing <span className="font-semibold text-[#34291F] mx-1 tabular-nums">{filteredItems.length}</span> of {items.length}
+            {/* Sort Dropdown */}
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-[11.5px] text-[#7C6A52] hidden md:inline">Sort:</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="bg-[#F2E8D5] border border-[#D4BE98] rounded-md px-2.5 py-2 text-[12px] text-[#34291F] focus:outline-none focus:border-[#A8523B] cursor-pointer"
+              >
+                <option value="relevance">Catalog Order</option>
+                <option value="year-asc">Chronological (Earliest)</option>
+                <option value="year-desc">Chronological (Latest)</option>
+                <option value="name">Alphabetical (A–Z)</option>
+              </select>
+
+              {/* Quick Count Badge */}
+              <div className="hidden sm:flex items-center text-[12px] text-[#7C6A52] px-3 py-2 bg-[#F2E8D5] border border-[#D4BE98] rounded-md shrink-0">
+                <span className="font-semibold text-[#34291F] mr-1 tabular-nums">{filteredItems.length}</span> found
+              </div>
             </div>
           </div>
 
@@ -205,13 +284,37 @@ export default function ExploreView({ onExploreOnMap }) {
               );
             })}
           </div>
+
+          {/* Secondary Era Filters Strip */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1 border-t border-[#D4BE98]/40">
+            <span className="text-[10.5px] font-semibold text-[#7C6A52] uppercase tracking-wider shrink-0 mr-1">
+              Era:
+            </span>
+            {ERA_FILTERS.map((era) => {
+              const isSelected = selectedEra === era.id;
+              return (
+                <button
+                  key={era.id}
+                  onClick={() => setSelectedEra(era.id)}
+                  className={[
+                    "text-[11px] px-2.5 py-0.5 rounded-full border transition-all whitespace-nowrap cursor-pointer",
+                    isSelected
+                      ? "bg-[#293E63] text-[#FAF5EB] border-[#293E63]"
+                      : "bg-[#FAF5EB] text-[#7C6A52] border-[#D4BE98] hover:border-[#7C6A52]",
+                  ].join(" ")}
+                >
+                  {era.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </section>
 
       {/* ── Main Content Area: Curated Themes & Entity Cards ─────────────── */}
       <main className="max-w-6xl mx-auto w-full px-4 sm:px-8 py-6 sm:py-8 space-y-8 flex-1">
-        {/* Curated Discovery Shelves (Shown when not filtering by specific query) */}
-        {!searchQuery && selectedKind === "all" && (
+        {/* Curated Discovery Shelves (Shown when not filtering by specific query or era) */}
+        {!searchQuery && selectedKind === "all" && selectedEra === "all" && (
           <section className="space-y-4">
             <div className="flex items-center justify-between border-b border-[#D4BE98] pb-2">
               <h3 className="font-serif text-[18px] sm:text-[20px] font-bold text-[#34291F]">
@@ -285,6 +388,7 @@ export default function ExploreView({ onExploreOnMap }) {
                 onClick={() => {
                   setSearchQuery("");
                   setSelectedKind("all");
+                  setSelectedEra("all");
                 }}
                 className="px-3.5 py-1.5 bg-[#A8523B] text-[#FAF5EB] text-[12px] font-medium rounded hover:bg-[#93422E] transition-colors cursor-pointer"
               >
@@ -298,7 +402,8 @@ export default function ExploreView({ onExploreOnMap }) {
                 return (
                   <article
                     key={`${item.kind}-${item.id}`}
-                    className="p-4 bg-[#F2E8D5]/60 border border-[#D4BE98] rounded-md hover:bg-[#FAF5EB] hover:border-[#A8523B] transition-all flex flex-col justify-between group shadow-2xs space-y-3"
+                    onClick={() => setSelectedEntity(item)}
+                    className="p-4 bg-[#F2E8D5]/60 border border-[#D4BE98] rounded-md hover:bg-[#FAF5EB] hover:border-[#A8523B] transition-all flex flex-col justify-between group shadow-2xs space-y-3 cursor-pointer"
                   >
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between gap-2">
@@ -308,7 +413,7 @@ export default function ExploreView({ onExploreOnMap }) {
                           {item.kind}
                         </span>
                         {item.jumpYear && (
-                          <span className="text-[10.5px] text-[#7C6A52] tabular-nums font-medium">
+                          <span className="text-[10.5px] text-[#7C6A52] tabular-nums font-medium bg-[#EFE4CE] px-1.5 py-0.2 rounded border border-[#D4BE98]">
                             {item.jumpYear} CE
                           </span>
                         )}
@@ -326,7 +431,7 @@ export default function ExploreView({ onExploreOnMap }) {
                     </div>
 
                     <div className="pt-2 border-t border-[#D4BE98]/40 flex items-center justify-between">
-                      <span className="text-[11.5px] font-medium text-[#A8523B] group-hover:underline cursor-pointer">
+                      <span className="text-[11.5px] font-medium text-[#A8523B] group-hover:underline">
                         View profile →
                       </span>
                       {onExploreOnMap && (
@@ -349,6 +454,19 @@ export default function ExploreView({ onExploreOnMap }) {
           )}
         </section>
       </main>
+
+      {/* ── Entity Profile Detail Modal ──────────────────────────────────── */}
+      {selectedEntity && (
+        <EntityProfileModal
+          entity={selectedEntity}
+          isOpen={Boolean(selectedEntity)}
+          onClose={() => setSelectedEntity(null)}
+          onExploreOnMap={(item, coords, jumpYear) => {
+            onExploreOnMap?.(item, coords, jumpYear);
+          }}
+          onNavigateToEntity={(entity) => setSelectedEntity(entity)}
+        />
+      )}
     </div>
   );
 }
