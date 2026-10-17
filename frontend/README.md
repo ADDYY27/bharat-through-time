@@ -1,16 +1,17 @@
-# React + Vite
+# Bharat Through Time — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React 19 + Vite 8 single-page application for Bharat Through Time.
 
-Currently, two official plugins are available:
+## Development Scripts
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- `npm run dev` — Starts local development server on port 5173
+- `npm run build` — Compiles production bundle to `dist/`
+- `npm run lint` — Runs `oxlint` code quality and syntax checks
+- `npm run preview` — Locally previews the production build
 
-## React Compiler
+## Environment Variables
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+See `.env.example`:
+- `VITE_API_URL` — Full URL to backend `/api` endpoint (defaults to `http://localhost:5000/api` in development)
 
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+For full architectural documentation, deployment guide, and mode features, see the root [`README.md`](../README.md).
