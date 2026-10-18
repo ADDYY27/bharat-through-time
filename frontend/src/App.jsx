@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import HistoryMap from "./components/HistoryMap";
 import Sidebar from "./components/Sidebar";
 import CompareView from "./components/CompareView";
@@ -28,6 +28,59 @@ function App() {
   const [selectedRuler, setSelectedRuler] = useState(null);
   const [activeTab, setActiveTab] = useState("map"); // "map" | "story" | "explore" | "compare"
   const [mobilePanel, setMobilePanel] = useState("map"); // "map" | "sidebar" (for narrow screens)
+
+  // Explore submode and story reader slug
+  const [exploreSubMode, setExploreSubMode] = useState("records");
+  const [exploreStorySlug, setExploreStorySlug] = useState(null);
+
+  // Sync tab navigation and URL state on mount & popstate
+  useEffect(() => {
+    function syncFromUrl() {
+      const path = window.location.pathname;
+      const search = new URLSearchParams(window.location.search);
+
+      if (path.startsWith("/explore/stories/")) {
+        const slug = path.replace("/explore/stories/", "").split("/")[0].trim();
+        setActiveTab("explore");
+        setExploreSubMode("stories");
+        setExploreStorySlug(slug || null);
+      } else if (path.startsWith("/explore")) {
+        setActiveTab("explore");
+        const mode = search.get("mode") === "stories" ? "stories" : "records";
+        setExploreSubMode(mode);
+        setExploreStorySlug(null);
+      } else if (path === "/compare") {
+        setActiveTab("compare");
+        setExploreStorySlug(null);
+      } else if (path === "/story" || path === "/timeline") {
+        setActiveTab("story");
+        setExploreStorySlug(null);
+      } else if (path === "/" || path === "") {
+        setActiveTab("map");
+        setExploreStorySlug(null);
+      }
+    }
+
+    syncFromUrl();
+    window.addEventListener("popstate", syncFromUrl);
+    return () => window.removeEventListener("popstate", syncFromUrl);
+  }, []);
+
+  function handleTabClick(tabId) {
+    setActiveTab(tabId);
+    if (tabId === "map") {
+      window.history.pushState(null, "", "/");
+    } else if (tabId === "story") {
+      window.history.pushState(null, "", "/story");
+    } else if (tabId === "explore") {
+      const targetUrl = exploreStorySlug
+        ? `/explore/stories/${exploreStorySlug}`
+        : `/explore?mode=${exploreSubMode || "records"}`;
+      window.history.pushState(null, "", targetUrl);
+    } else if (tabId === "compare") {
+      window.history.pushState(null, "", "/compare");
+    }
+  }
 
   // ── Knowledge-graph navigation ──────────────────────────────────────────
   const [selectedEntity, setSelectedEntity] = useState(null);
@@ -118,6 +171,11 @@ function App() {
 
   const isCompareMode = activeTab === "compare";
 
+  // When Stories mode is active in Explore or in the story reader
+  const isStoriesActive =
+    activeTab === "explore" &&
+    (exploreSubMode === "stories" || Boolean(exploreStorySlug));
+
   // Calculate timeline progress percentage for filled track styling
   const sliderProgress = ((year - MIN_YEAR) / (MAX_YEAR - MIN_YEAR)) * 100;
 
@@ -147,7 +205,7 @@ function App() {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => handleTabClick(tab.id)}
                   className={[
                     "text-[12px] sm:text-[12.5px] px-2.5 sm:px-3.5 py-1.5 transition-all relative font-medium whitespace-nowrap cursor-pointer",
                     isActive
@@ -207,7 +265,11 @@ function App() {
             </div>
 
             {/* Slider Track with Era Milestones */}
-            <div className="flex-1 flex flex-col justify-center min-w-0 pr-1 sm:pr-2">
+            <div
+              className={`flex-1 flex flex-col justify-center min-w-0 pr-1 sm:pr-2 transition-opacity duration-200 ${
+                isStoriesActive ? "opacity-40 select-none pointer-events-none" : ""
+              }`}
+            >
               <div className="relative w-full flex items-center py-1">
                 <input
                   type="range"
@@ -215,6 +277,7 @@ function App() {
                   max={MAX_YEAR}
                   step={1}
                   value={year}
+                  disabled={isStoriesActive}
                   onChange={(e) => setYear(parseInt(e.target.value, 10))}
                   style={{
                     background: `linear-gradient(to right, #A8523B 0%, #A8523B ${sliderProgress}%, #D4BE98 ${sliderProgress}%, #D4BE98 100%)`,
@@ -237,6 +300,7 @@ function App() {
                   return (
                     <button
                       key={milestone.label}
+                      disabled={isStoriesActive}
                       onClick={() => setYear(milestone.year)}
                       className={[
                         "transition-colors hover:text-[#A8523B] cursor-pointer whitespace-nowrap",
@@ -252,6 +316,13 @@ function App() {
                 })}
               </div>
             </div>
+
+            {/* Note badge shown when in Stories mode */}
+            {isStoriesActive && (
+              <div className="shrink-0 bg-[#FAF5EB] border border-[#D4BE98] rounded px-3 py-1.5 text-[11.5px] font-medium text-[#7C6A52] select-none shadow-2xs self-center whitespace-nowrap animate-in fade-in duration-150">
+                Stories span every era
+              </div>
+            )}
           </div>
         )}
       </header>
@@ -266,6 +337,12 @@ function App() {
         />
       ) : activeTab === "explore" ? (
         <ExploreView
+          initialMode={exploreSubMode}
+          initialSlug={exploreStorySlug}
+          onModeChange={(subMode, slug) => {
+            setExploreSubMode(subMode);
+            setExploreStorySlug(slug);
+          }}
           onExploreOnMap={(item, coords, jumpYear) => {
             const targetYear = jumpYear || item.jumpYear;
             if (targetYear) setYear(targetYear);
@@ -295,6 +372,7 @@ function App() {
             }
             setActiveTab("map");
             setMobilePanel("map");
+            window.history.pushState(null, "", "/");
           }}
         />
       ) : (
