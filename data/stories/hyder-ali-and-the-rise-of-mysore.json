@@ -1,0 +1,51 @@
+{
+  "slug": "hyder-ali-and-the-rise-of-mysore",
+  "title": "Hyder Ali and the Rise of Mysore",
+  "category": "empire",
+  "period": {
+    "startYear": 1761,
+    "endYear": 1782,
+    "label": "1761 – 1782"
+  },
+  "region": "Deccan / South India",
+  "deck": "How a soldier became the ruler of Mysore and challenged the Company.",
+  "readMinutes": 7,
+  "confidence": "high",
+  "confidenceNote": "High — extensively documented in 18th-century British and Mysore records",
+  "status": "draft",
+  "facts": [],
+  "chapters": [],
+  "timelineNodes": [],
+  "links": {
+    "places": [
+      { "name": "Mysore", "qid": "Q10086" },
+      { "name": "Srirangapatna", "qid": "Q848375" }
+    ],
+    "people": [
+      { "name": "Hyder Ali", "qid": "Q379650" }
+    ],
+    "polities": [
+      { "name": "Kingdom of Mysore", "qid": "Q131154" }
+    ],
+    "events": []
+  },
+  "relatedStories": [],
+  "sources": [
+    {
+      "title": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q379650"
+    }
+  ],
+  "locator": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [75.0, 11.5],
+        [78.5, 12.0],
+        [78.0, 15.0],
+        [74.5, 14.5],
+        [75.0, 11.5]
+      ]
+    ]
+  }
+}

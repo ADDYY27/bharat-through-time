@@ -1,0 +1,44 @@
+{
+  "slug": "the-maurya-empire",
+  "title": "The Maurya Empire",
+  "category": "empire",
+  "period": {
+    "startYear": -322,
+    "endYear": -185,
+    "label": "c. 322 – 185 BCE"
+  },
+  "region": "Pan-subcontinental",
+  "deck": "From Chandragupta's rise to Ashoka's edicts across the subcontinent.",
+  "readMinutes": 7,
+  "confidence": "high",
+  "confidenceNote": "Extensively documented in epigraphy, Megasthenes' Indica fragments, and later chronicles",
+  "status": "draft",
+  "facts": [],
+  "chapters": [],
+  "timelineNodes": [],
+  "links": {
+    "places": [],
+    "people": [],
+    "polities": [],
+    "events": []
+  },
+  "relatedStories": ["ashoka-and-the-kalinga-war", "alexander-and-porus"],
+  "sources": [
+    {
+      "title": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q62943"
+    }
+  ],
+  "locator": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [68.0, 22.0],
+        [88.0, 22.0],
+        [86.0, 30.0],
+        [72.0, 34.0],
+        [68.0, 22.0]
+      ]
+    ]
+  }
+}
