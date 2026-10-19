@@ -90,3 +90,30 @@ export const STORY_COVERS = {
   "chola-seas": null,
   "hyder-ali-and-the-rise-of-mysore": null,
 };
+
+export const STORY_METADATA_LOOKUP = {
+  "indus-valley-civilisation": {
+    title: "Indus Valley Civilisation",
+    date: "c. 3300 BCE",
+  },
+  "alexander-and-porus": {
+    title: "Alexander and Porus",
+    date: "326 BCE",
+  },
+  "ashoka-and-the-kalinga-war": {
+    title: "Ashoka and the Kalinga War",
+    date: "c. 261 BCE",
+  },
+  "the-maurya-empire": {
+    title: "The Maurya Empire",
+    date: "c. 322 BCE",
+  },
+  "chola-seas": {
+    title: "Chola Seas",
+    date: "c. 1025 CE",
+  },
+  "hyder-ali-and-the-rise-of-mysore": {
+    title: "Hyder Ali and the rise of Mysore",
+    date: "1761 – 1782",
+  },
+};

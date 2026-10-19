@@ -12,7 +12,7 @@ function project(lng, lat, width = 320, height = 240) {
   return `${x.toFixed(1)},${y.toFixed(1)}`;
 }
 
-// Simplified subcontinent coastline path
+// Simplified subcontinent coastline path matching the design reference
 const SUBCONTINENT_COORDS = [
   [71.5, 36.0],
   [74.5, 36.5],
@@ -61,8 +61,8 @@ export default function StoryLocatorMap({
   className = "",
   compact = false,
 }) {
-  const width = compact ? 220 : 320;
-  const height = compact ? 160 : 220;
+  const width = compact ? 240 : 320;
+  const height = compact ? 170 : 230;
 
   const subcontinentPoints = useMemo(() => {
     return SUBCONTINENT_COORDS.map(([lng, lat]) => project(lng, lat, width, height)).join(" ");
@@ -76,7 +76,6 @@ export default function StoryLocatorMap({
     if (!locator || !locator.coordinates) return null;
 
     let ring = locator.coordinates;
-    // Standard GeoJSON Polygon is array of rings: [[[lng, lat], ...]]
     if (Array.isArray(ring[0]) && Array.isArray(ring[0][0])) {
       ring = ring[0];
     }
@@ -87,6 +86,18 @@ export default function StoryLocatorMap({
       .map(([lng, lat]) => project(lng, lat, width, height))
       .join(" ");
   }, [locator, width, height]);
+
+  // Label text matching the screenshot
+  const displayLabel = useMemo(() => {
+    if (!regionLabel) return "";
+    const lower = regionLabel.toLowerCase();
+    if (lower.includes("indus")) return "INDUS BASIN";
+    if (lower.includes("jhelum")) return "JHELUM";
+    if (lower.includes("kalinga")) return "KALINGA";
+    if (lower.includes("mysore")) return "MYSORE";
+    if (lower.includes("chola")) return "CHOLA SEAS";
+    return regionLabel.split(" ")[0].toUpperCase();
+  }, [regionLabel]);
 
   // Highlight color depending on category
   const highlightColor =
@@ -113,65 +124,65 @@ export default function StoryLocatorMap({
 
   return (
     <div
-      className={`relative flex flex-col items-center rounded border border-[#D4BE98] bg-[#C5D5DF]/70 p-2 overflow-hidden select-none ${className}`}
+      className={`relative flex flex-col items-center justify-between rounded border border-[#D4BE98] bg-[#C5D5DF] p-3 overflow-hidden select-none shadow-2xs ${className}`}
     >
-      <svg
-        viewBox={`0 0 ${width} ${height}`}
-        className="w-full h-auto max-h-[180px] drop-shadow-xs"
-        role="img"
-        aria-label={`Locator map for ${regionLabel || "historical region"}`}
-      >
-        {/* Ocean Background is the container bg */}
+      <div className="w-full flex-1 flex items-center justify-center">
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          className="w-full h-auto max-h-[190px] drop-shadow-2xs"
+          role="img"
+          aria-label={`Locator map for ${regionLabel || "historical region"}`}
+        >
+          {/* Subcontinent landmass */}
+          <polygon
+            points={subcontinentPoints}
+            fill="#EAE0CB"
+            stroke="#C8B89E"
+            strokeWidth="1.2"
+            strokeLinejoin="round"
+          />
 
-        {/* Subcontinent landmass */}
-        <polygon
-          points={subcontinentPoints}
-          fill="#EAE0CB"
-          stroke="#C8B89E"
-          strokeWidth="1.2"
-          strokeLinejoin="round"
-        />
+          {/* Sri Lanka */}
+          <polygon
+            points={sriLankaPoints}
+            fill="#EAE0CB"
+            stroke="#C8B89E"
+            strokeWidth="1.0"
+            strokeLinejoin="round"
+          />
 
-        {/* Sri Lanka */}
-        <polygon
-          points={sriLankaPoints}
-          fill="#EAE0CB"
-          stroke="#C8B89E"
-          strokeWidth="1.0"
-          strokeLinejoin="round"
-        />
+          {/* Story Region Highlight Polygon */}
+          {highlightPoints && (
+            <g>
+              <polygon
+                points={highlightPoints}
+                fill={highlightColor}
+                stroke={strokeColor}
+                strokeWidth="1.5"
+                strokeDasharray="3 2"
+                className="transition-all duration-300"
+              />
+              {displayLabel && (
+                <text
+                  x={width * 0.35}
+                  y={height * 0.28}
+                  textAnchor="middle"
+                  fontSize={compact ? "9" : "10"}
+                  fontWeight="700"
+                  fontFamily="Inter, sans-serif"
+                  fill={strokeColor}
+                  letterSpacing="0.05em"
+                  className="uppercase pointer-events-none drop-shadow-xs"
+                >
+                  {displayLabel}
+                </text>
+              )}
+            </g>
+          )}
+        </svg>
+      </div>
 
-        {/* Story Region Highlight Polygon */}
-        {highlightPoints && (
-          <g>
-            <polygon
-              points={highlightPoints}
-              fill={highlightColor}
-              stroke={strokeColor}
-              strokeWidth="1.5"
-              strokeDasharray="3 2"
-              className="transition-all duration-300"
-            />
-            {regionLabel && (
-              <text
-                x={width * 0.35}
-                y={height * 0.28}
-                textAnchor="middle"
-                fontSize={compact ? "9" : "10"}
-                fontWeight="700"
-                fontFamily="Inter, sans-serif"
-                fill={strokeColor}
-                letterSpacing="0.05em"
-                className="uppercase pointer-events-none drop-shadow-xs"
-              >
-                {regionLabel.split(" ")[0]}
-              </text>
-            )}
-          </g>
-        )}
-      </svg>
-
-      <span className="text-[10px] text-[#7C6A52] italic mt-1 text-center font-normal tracking-tight">
+      <span className="text-[10px] text-[#7C6A52] italic mt-1.5 text-center font-normal tracking-tight">
         {onMap ? "On map — 1700–1820 atlas range" : "Locator map — outside the 1700 – 1820 atlas range"}
       </span>
     </div>
