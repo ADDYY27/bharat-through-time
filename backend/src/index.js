@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import { connectDB } from "./db.js";
 import historyRoutes from "./routes/history.js";
 import searchRoutes from "./routes/search.js";
+import storiesRoutes from "./routes/stories.js";
 
 dotenv.config();
 const app = express();
@@ -43,6 +44,7 @@ app.get("/api/ping", (req, res) => {
 // ── Core Routes ─────────────────────────────────────────────────────────────
 app.use("/api/history", historyRoutes);
 app.use("/api/search", searchRoutes);
+app.use("/api/stories", storiesRoutes);
 
 const PORT = process.env.PORT || 5000;
 

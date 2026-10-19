@@ -1,0 +1,140 @@
+{
+  "slug": "alexander-and-porus",
+  "title": "Alexander and Porus: the Hydaspes",
+  "category": "war",
+  "period": {
+    "startYear": -326,
+    "endYear": -326,
+    "label": "326 BCE"
+  },
+  "region": "Jhelum river, Punjab",
+  "deck": "A river crossing in a storm, an army of war elephants, and a defeated king who kept his throne.",
+  "readMinutes": 6,
+  "confidence": "high",
+  "confidenceNote": "High — well attested; exact site debated",
+  "status": "published",
+  "facts": [
+    {
+      "label": "DATE",
+      "value": "326 BCE"
+    },
+    {
+      "label": "PLACE",
+      "value": "Jhelum river, Punjab"
+    },
+    {
+      "label": "COMMANDERS",
+      "value": "Alexander the Great, Porus"
+    },
+    {
+      "label": "OUTCOME",
+      "value": "Macedonian victory; Porus kept his kingdom"
+    }
+  ],
+  "chapters": [
+    {
+      "order": 1,
+      "heading": "Alexander reaches the Indus",
+      "year": -327,
+      "body": "In 327–326 BCE Alexander's army crossed the Hindu Kush and the Indus. Local rulers such as Ambhi of Taxila chose to ally with him.",
+      "entityRefs": ["Alexander the Great", "Ambhi of Taxila", "Taxila"]
+    },
+    {
+      "order": 2,
+      "heading": "Porus holds the river",
+      "year": -326,
+      "body": "Porus, king of the Paurava realm, held the far bank of the Hydaspes (Jhelum) with infantry, chariots and war elephants.",
+      "entityRefs": ["Porus", "Jhelum river"]
+    },
+    {
+      "order": 3,
+      "heading": "The crossing",
+      "year": -326,
+      "body": "According to Arrian, Alexander left part of his force at the main camp and crossed upstream by night during a storm.",
+      "entityRefs": ["Alexander the Great", "Jhelum river"]
+    },
+    {
+      "order": 4,
+      "heading": "The battle",
+      "year": -326,
+      "body": "Alexander's cavalry outflanked Porus's army. The elephants panicked and trampled their own side, and the Indian army was defeated.",
+      "entityRefs": ["Porus", "Alexander the Great"]
+    },
+    {
+      "order": 5,
+      "heading": "A king who kept his throne",
+      "year": -326,
+      "body": "Alexander reinstated Porus as a ruler and ally. Soon after, at the Hyphasis (Beas), his army refused to march further east.",
+      "entityRefs": ["Porus", "Beas river"]
+    }
+  ],
+  "keyIdea": {
+    "chapterOrder": 2,
+    "text": "The ancient accounts agree on the outcome, but historians still debate the exact crossing point on the Jhelum."
+  },
+  "timelineNodes": [
+    {
+      "label": "327 BCE",
+      "position": 0.05,
+      "chapterOrder": 1
+    },
+    {
+      "label": "326 BCE",
+      "position": 0.38,
+      "chapterOrder": 2
+    },
+    {
+      "label": "Crossing",
+      "position": 0.58,
+      "chapterOrder": 3
+    },
+    {
+      "label": "Battle",
+      "position": 0.75,
+      "chapterOrder": 4
+    },
+    {
+      "label": "Hyphasis",
+      "position": 0.95,
+      "chapterOrder": 5
+    }
+  ],
+  "links": {
+    "places": [
+      { "name": "Jhelum river", "qid": "Q14115" },
+      { "name": "Taxila", "qid": "Q156201" },
+      { "name": "Beas river", "qid": "Q335359" }
+    ],
+    "people": [
+      { "name": "Alexander the Great", "qid": "Q8409" },
+      { "name": "Porus", "qid": "Q272990" },
+      { "name": "Ambhi of Taxila", "qid": "Q4741499" }
+    ],
+    "polities": [],
+    "events": []
+  },
+  "relatedStories": ["the-maurya-empire", "indus-valley-civilisation"],
+  "sources": [
+    {
+      "title": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q192950"
+    },
+    {
+      "title": "Ancient histories of Alexander (Arrian, Anabasis)",
+      "url": "https://www.perseus.tufts.edu"
+    }
+  ],
+  "locator": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [71.5, 31.0],
+        [74.5, 30.5],
+        [75.5, 33.0],
+        [73.0, 34.0],
+        [71.5, 33.0],
+        [71.5, 31.0]
+      ]
+    ]
+  }
+}

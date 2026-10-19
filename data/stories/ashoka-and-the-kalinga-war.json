@@ -1,0 +1,44 @@
+{
+  "slug": "ashoka-and-the-kalinga-war",
+  "title": "Ashoka and the Kalinga War",
+  "category": "war",
+  "period": {
+    "startYear": -261,
+    "endYear": -261,
+    "label": "c. 261 BCE"
+  },
+  "region": "Kalinga (coastal Odisha)",
+  "deck": "A bloody conquest that turned an emperor toward dhamma.",
+  "readMinutes": 5,
+  "confidence": "high",
+  "confidenceNote": "Attested in Ashoka's Major Rock Edict XIII",
+  "status": "draft",
+  "facts": [],
+  "chapters": [],
+  "timelineNodes": [],
+  "links": {
+    "places": [],
+    "people": [],
+    "polities": [],
+    "events": []
+  },
+  "relatedStories": ["the-maurya-empire", "alexander-and-porus"],
+  "sources": [
+    {
+      "title": "Major Rock Edict XIII",
+      "url": "https://www.ancient.eu/article/181/the-edicts-of-king-ashoka/"
+    }
+  ],
+  "locator": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [84.0, 19.0],
+        [87.0, 20.0],
+        [86.5, 22.0],
+        [83.5, 21.0],
+        [84.0, 19.0]
+      ]
+    ]
+  }
+}

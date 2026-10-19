@@ -1,0 +1,142 @@
+{
+  "slug": "indus-valley-civilisation",
+  "title": "Indus Valley Civilisation",
+  "category": "civilisation",
+  "period": {
+    "startYear": -3300,
+    "endYear": -1300,
+    "label": "c. 3300 – 1300 BCE"
+  },
+  "region": "Indus and Ghaggar-Hakra basins",
+  "deck": "How planned cities, standard bricks and carved seals appeared on the Indus plains — and why the cities faded.",
+  "readMinutes": 8,
+  "confidence": "medium",
+  "confidenceNote": "Medium — dating of phases is debated",
+  "status": "published",
+  "facts": [
+    {
+      "label": "PERIOD",
+      "value": "c. 3300 – 1300 BCE"
+    },
+    {
+      "label": "REGION",
+      "value": "Indus and Ghaggar-Hakra basins"
+    },
+    {
+      "label": "MAJOR SITES",
+      "value": "Harappa, Mohenjo-daro, Dholavira"
+    },
+    {
+      "label": "KNOWN FOR",
+      "value": "Planning, drainage, seals"
+    }
+  ],
+  "chapters": [
+    {
+      "order": 1,
+      "heading": "Rivers and first villages",
+      "year": -7000,
+      "body": "The story starts before the cities. Farming communities settled the Indus and Ghaggar-Hakra basins, and sites such as Mehrgarh show settled life in the region thousands of years earlier.",
+      "entityRefs": ["Mehrgarh"]
+    },
+    {
+      "order": 2,
+      "heading": "The cities appear",
+      "year": -2600,
+      "body": "By about 2600 BCE, towns such as Harappa and Mohenjo-daro had grown into planned cities, with gridded streets, standardised baked bricks and covered drains.",
+      "entityRefs": ["Harappa", "Mohenjo-daro", "Dholavira"]
+    },
+    {
+      "order": 3,
+      "heading": "Trade, seals and weights",
+      "year": -2300,
+      "body": "Craftspeople made stamp seals, beads and standardised weights. Seals and goods found in Mesopotamia point to long-distance trade.",
+      "entityRefs": ["Lothal"]
+    },
+    {
+      "order": 4,
+      "heading": "A script no one can read",
+      "year": -1900,
+      "body": "Short inscriptions on seals and pottery remain undeciphered, so much of what we know comes from archaeology rather than from written records.",
+      "entityRefs": []
+    },
+    {
+      "order": 5,
+      "heading": "Decline",
+      "year": -1300,
+      "body": "From about 1900 BCE the big cities declined and people spread to smaller settlements. Shifting rivers and changing monsoons are often discussed, but the causes are still debated.",
+      "entityRefs": ["Rakhigarhi"]
+    }
+  ],
+  "keyIdea": {
+    "chapterOrder": 2,
+    "text": "Many Indus cities share the same brick proportions and weight standards, which suggests a high degree of coordination across a very large area."
+  },
+  "timelineNodes": [
+    {
+      "label": "c. 7000 BCE",
+      "position": 0.05,
+      "chapterOrder": 1
+    },
+    {
+      "label": "c. 2600 BCE",
+      "position": 0.38,
+      "chapterOrder": 2
+    },
+    {
+      "label": "Trade",
+      "position": 0.58,
+      "chapterOrder": 3
+    },
+    {
+      "label": "c. 1900 BCE",
+      "position": 0.78,
+      "chapterOrder": 4
+    },
+    {
+      "label": "c. 1300 BCE",
+      "position": 0.95,
+      "chapterOrder": 5
+    }
+  ],
+  "links": {
+    "places": [
+      { "name": "Harappa", "qid": "Q174780" },
+      { "name": "Mohenjo-daro", "qid": "Q5725" },
+      { "name": "Dholavira", "qid": "Q1207693" },
+      { "name": "Mehrgarh", "qid": "Q735391" },
+      { "name": "Lothal", "qid": "Q737895" },
+      { "name": "Rakhigarhi", "qid": "Q2726665" }
+    ],
+    "people": [],
+    "polities": [],
+    "events": []
+  },
+  "relatedStories": ["alexander-and-porus", "the-maurya-empire"],
+  "sources": [
+    {
+      "title": "Wikidata",
+      "url": "https://www.wikidata.org/wiki/Q131140"
+    },
+    {
+      "title": "Archaeological Survey of India",
+      "url": "https://asi.nic.in"
+    }
+  ],
+  "locator": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [66.5, 24.0],
+        [70.0, 23.0],
+        [73.0, 24.5],
+        [76.5, 29.5],
+        [75.5, 32.5],
+        [72.0, 34.5],
+        [68.5, 32.5],
+        [66.0, 28.0],
+        [66.5, 24.0]
+      ]
+    ]
+  }
+}
