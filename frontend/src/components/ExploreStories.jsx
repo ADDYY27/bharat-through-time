@@ -126,21 +126,22 @@ export default function ExploreStories({ onSelectStory }) {
 
             {/* Sort Dropdown */}
             <div className="flex items-center gap-2 shrink-0">
-              <span className="text-[11.5px] text-[#7C6A52] hidden md:inline">Sort:</span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="bg-[#F2E8D5] border border-[#D4BE98] rounded-md px-2.5 py-2 text-[12px] text-[#34291F] focus:outline-none focus:border-[#A8523B] cursor-pointer"
-              >
-                {SORT_OPTIONS.map((opt) => (
-                  <option key={opt.id} value={opt.id}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="bg-[#FAF5EB] border border-[#D4BE98] rounded-md px-3 py-2 text-[12px] text-[#34291F] focus:outline-none focus:border-[#A8523B] cursor-pointer"
+                >
+                  {SORT_OPTIONS.map((opt) => (
+                    <option key={opt.id} value={opt.id}>
+                      Sort: {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               {/* Found Count Badge */}
-              <div className="flex items-center text-[12px] text-[#7C6A52] px-3 py-2 bg-[#F2E8D5] border border-[#D4BE98] rounded-md shrink-0">
+              <div className="flex items-center text-[12px] text-[#7C6A52] px-3.5 py-2 bg-[#FAF5EB] border border-[#D4BE98] rounded-md shrink-0">
                 <span className="font-semibold text-[#34291F] mr-1 tabular-nums">
                   {stories.length}
                 </span>{" "}
@@ -153,16 +154,16 @@ export default function ExploreStories({ onSelectStory }) {
           <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-1">
             <button
               onClick={() => setSelectedCategory("all")}
-              className={`text-[12px] sm:text-[12.5px] px-3 py-1.5 rounded-md border font-medium transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+              className={`text-[12px] sm:text-[12.5px] px-3.5 py-1.5 rounded-md border font-medium transition-all whitespace-nowrap cursor-pointer flex items-center gap-2 ${
                 selectedCategory === "all"
                   ? "bg-[#A8523B] text-[#FAF5EB] border-[#A8523B] shadow-xs"
-                  : "bg-[#F2E8D5] text-[#34291F] border-[#D4BE98] hover:bg-[#EFE4CE]"
+                  : "bg-[#FAF5EB] text-[#34291F] border-[#D4BE98] hover:bg-[#F2E8D5]"
               }`}
             >
               <span>All stories</span>
               <span
-                className={`text-[10px] px-1.5 py-0.2 rounded-full tabular-nums ${
-                  selectedCategory === "all" ? "bg-[#8D3823] text-white" : "bg-[#D4BE98]/50 text-[#7C6A52]"
+                className={`text-[10px] px-1.5 py-0.2 rounded-full tabular-nums font-semibold ${
+                  selectedCategory === "all" ? "bg-[#8D3823] text-white" : "bg-[#D4BE98]/60 text-[#7C6A52]"
                 }`}
               >
                 {counts.total || stories.length}
@@ -176,16 +177,16 @@ export default function ExploreStories({ onSelectStory }) {
                 <button
                   key={catKey}
                   onClick={() => setSelectedCategory(catKey)}
-                  className={`text-[12px] sm:text-[12.5px] px-3 py-1.5 rounded-md border font-medium transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                  className={`text-[12px] sm:text-[12.5px] px-3.5 py-1.5 rounded-md border font-medium transition-all whitespace-nowrap cursor-pointer flex items-center gap-2 ${
                     isSelected
                       ? "bg-[#A8523B] text-[#FAF5EB] border-[#A8523B] shadow-xs"
-                      : "bg-[#F2E8D5] text-[#34291F] border-[#D4BE98] hover:bg-[#EFE4CE]"
+                      : "bg-[#FAF5EB] text-[#34291F] border-[#D4BE98] hover:bg-[#F2E8D5]"
                   }`}
                 >
                   <span>{config.label}</span>
                   <span
-                    className={`text-[10px] px-1.5 py-0.2 rounded-full tabular-nums ${
-                      isSelected ? "bg-[#8D3823] text-white" : "bg-[#D4BE98]/50 text-[#7C6A52]"
+                    className={`text-[10px] px-1.5 py-0.2 rounded-full tabular-nums font-semibold ${
+                      isSelected ? "bg-[#8D3823] text-white" : "bg-[#D4BE98]/60 text-[#7C6A52]"
                     }`}
                   >
                     {count}
@@ -196,9 +197,9 @@ export default function ExploreStories({ onSelectStory }) {
           </div>
 
           {/* Era Filter Chips */}
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1 border-t border-[#D4BE98]/40">
-            <span className="text-[10.5px] font-semibold text-[#7C6A52] uppercase tracking-wider shrink-0 mr-1">
-              ERA:
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1 border-t border-[#D4BE98]/40">
+            <span className="text-[10.5px] font-bold text-[#7C6A52] uppercase tracking-wider shrink-0 mr-1">
+              ERA
             </span>
             {STORY_ERAS.map((era) => {
               const isSelected = selectedEra === era.id;
@@ -206,10 +207,10 @@ export default function ExploreStories({ onSelectStory }) {
                 <button
                   key={era.id}
                   onClick={() => setSelectedEra(era.id)}
-                  className={`text-[11px] px-2.5 py-0.5 rounded-full border transition-all whitespace-nowrap cursor-pointer ${
+                  className={`text-[11.5px] px-3 py-1 rounded-full border transition-all whitespace-nowrap cursor-pointer ${
                     isSelected
-                      ? "bg-[#34291F] text-[#FAF5EB] border-[#34291F] font-semibold"
-                      : "bg-[#F2E8D5] text-[#7C6A52] border-[#D4BE98] hover:border-[#7C6A52]"
+                      ? "bg-[#2E2822] text-[#FAF5EB] border-[#2E2822] font-semibold shadow-2xs"
+                      : "bg-[#FAF5EB] text-[#7C6A52] border-[#D4BE98] hover:border-[#7C6A52] hover:text-[#34291F]"
                   }`}
                 >
                   {era.label}
@@ -234,7 +235,7 @@ export default function ExploreStories({ onSelectStory }) {
           <h2 className="font-serif text-[22px] sm:text-[24px] font-bold text-[#34291F]">
             All Stories
           </h2>
-          <span className="text-[12px] text-[#7C6A52] tabular-nums">
+          <span className="text-[12px] text-[#7C6A52] tabular-nums font-medium">
             {stories.length} {stories.length === 1 ? "story" : "stories"} found
           </span>
         </div>
@@ -275,7 +276,7 @@ export default function ExploreStories({ onSelectStory }) {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {stories.map((story) => (
               <StoryCard
                 key={story.slug}
