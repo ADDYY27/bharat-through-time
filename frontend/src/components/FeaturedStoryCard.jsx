@@ -46,7 +46,8 @@ export default function FeaturedStoryCard({ story, onSelectStory }) {
           <div className="flex flex-wrap items-center gap-4 pt-2">
             <button
               onClick={() => onSelectStory(story.slug)}
-              className="inline-flex items-center gap-2 bg-[#A8523B] hover:bg-[#93422E] text-[#FAF5EB] text-[13px] font-semibold px-4 py-2.5 rounded shadow-xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 bg-[#A8523B] hover:bg-[#93422E] text-[#FAF5EB] text-[13px] font-semibold px-4 py-2.5 rounded shadow-xs transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8523B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF5EB]"
+              aria-label={`Read the full featured story: ${story.title}`}
             >
               <span>Read the full story</span>
               <span>→</span>

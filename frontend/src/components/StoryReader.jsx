@@ -144,7 +144,8 @@ export default function StoryReader({
           <div className="flex items-center gap-3 text-[12px] text-[#7C6A52] overflow-x-auto no-scrollbar">
             <button
               onClick={onBackToStories}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-[#FAF5EB] hover:bg-[#F2E8D5] border border-[#D4BE98] font-medium text-[#34291F] transition-colors cursor-pointer text-[12px] shadow-2xs shrink-0"
+              aria-label="Back to all stories"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-[#FAF5EB] hover:bg-[#F2E8D5] border border-[#D4BE98] font-medium text-[#34291F] transition-colors cursor-pointer text-[12px] shadow-2xs shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8523B] focus-visible:ring-offset-1"
             >
               <span>← Back to Stories</span>
             </button>

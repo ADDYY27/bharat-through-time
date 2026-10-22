@@ -29,8 +29,17 @@ export default function StoryCard({ story, onSelectStory }) {
 
   return (
     <article
+      tabIndex={0}
+      role="button"
+      aria-label={`Read story: ${story.title}`}
       onClick={() => onSelectStory(story.slug)}
-      className="group relative flex flex-col justify-between bg-[#FAF5EB] border border-[#D4BE98] rounded-md overflow-hidden transition-all duration-200 hover:shadow-md hover:border-[#A8523B]/50 cursor-pointer text-[#34291F]"
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelectStory(story.slug);
+        }
+      }}
+      className="group relative flex flex-col justify-between bg-[#FAF5EB] border border-[#D4BE98] rounded-md overflow-hidden transition-all duration-200 hover:shadow-md hover:border-[#A8523B]/50 cursor-pointer text-[#34291F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8523B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F2E8D5]"
     >
       {/* Top Image / Editorial Pigment Cover Area */}
       <StoryCoverImage
