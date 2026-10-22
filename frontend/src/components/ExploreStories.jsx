@@ -282,23 +282,41 @@ export default function ExploreStories({ onSelectStory }) {
             </button>
           </div>
         ) : stories.length === 0 ? (
-          <div className="bg-[#FAF5EB] border border-[#D4BE98] rounded-lg p-10 text-center text-[#7C6A52]">
-            <p className="font-serif text-[18px] text-[#34291F] font-bold mb-1">
-              No matching stories found
+          <div className="bg-[#FAF5EB] border border-[#D4BE98] rounded-lg p-10 text-center text-[#7C6A52] max-w-xl mx-auto shadow-2xs">
+            <div className="w-10 h-10 mx-auto mb-3 rounded-full bg-[#EAE0CB] text-[#A8523B] flex items-center justify-center text-lg select-none">
+              📜
+            </div>
+            <h3 className="font-serif text-[18px] text-[#34291F] font-bold mb-1.5">
+              No stories found
+            </h3>
+            <p className="text-[13px] text-[#7C6A52] mb-5 leading-relaxed">
+              {debouncedQuery.trim() ? (
+                <>
+                  No narratives matched <span className="font-semibold text-[#34291F]">"{debouncedQuery.trim()}"</span>.
+                </>
+              ) : selectedCategory !== "all" || selectedEra !== "all" ? (
+                "No narratives match the selected category and era filters."
+              ) : (
+                "No historical narratives are currently available for this view."
+              )}{" "}
+              Try clearing your search or resetting filters to view all stories.
             </p>
-            <p className="text-[13px] mb-4">
-              Try adjusting your search terms, selecting "All stories", or choosing another historical era.
-            </p>
-            <button
-              onClick={() => {
-                setSelectedCategory("all");
-                setSelectedEra("all");
-                setSearchQuery("");
-              }}
-              className="px-3.5 py-1.5 rounded bg-[#A8523B] text-[#FAF5EB] text-[12px] font-medium hover:bg-[#93422E] transition-colors cursor-pointer"
-            >
-              Reset All Filters
-            </button>
+            <div className="flex items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedCategory("all");
+                  setSelectedEra("all");
+                  setSearchQuery("");
+                  setSortBy("chronological");
+                  if (searchInputRef.current) searchInputRef.current.focus();
+                }}
+                className="px-4 py-2 rounded bg-[#A8523B] text-[#FAF5EB] text-[12.5px] font-medium hover:bg-[#93422E] transition-colors cursor-pointer shadow-xs inline-flex items-center gap-1.5"
+              >
+                <span>↺</span>
+                <span>Reset search & filters</span>
+              </button>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
