@@ -241,9 +241,34 @@ export default function ExploreStories({ onSelectStory }) {
         </div>
 
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-16 text-[#7C6A52]">
-            <div className="w-7 h-7 border-2 border-[#A8523B] border-t-transparent rounded-full animate-spin mb-3" />
-            <p className="text-[13px]">Loading historical narratives…</p>
+          <div className="space-y-6" role="status" aria-live="polite">
+            <div className="flex flex-col items-center justify-center py-6 text-[#7C6A52]">
+              <div className="w-6 h-6 border-2 border-[#A8523B] border-t-transparent rounded-full animate-spin motion-reduce:animate-none mb-2.5" />
+              <p className="text-[13px] font-medium text-[#7C6A52]">Loading historical narratives…</p>
+            </div>
+            {/* Lightweight Parchment skeleton card grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-60">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="bg-[#FAF5EB] border border-[#D4BE98] rounded-md overflow-hidden animate-pulse motion-reduce:animate-none flex flex-col h-[320px]"
+                >
+                  <div className="h-[120px] bg-[#EAE0CB]/70 w-full" />
+                  <div className="p-4 flex-1 flex flex-col justify-between gap-3">
+                    <div className="space-y-2">
+                      <div className="h-3 bg-[#EAE0CB] rounded w-1/3" />
+                      <div className="h-5 bg-[#EAE0CB] rounded w-4/5" />
+                      <div className="h-3 bg-[#EAE0CB] rounded w-full" />
+                      <div className="h-3 bg-[#EAE0CB] rounded w-2/3" />
+                    </div>
+                    <div className="flex justify-between items-center pt-2 border-t border-[#D4BE98]/40">
+                      <div className="h-3 bg-[#EAE0CB] rounded w-1/4" />
+                      <div className="h-3 bg-[#EAE0CB] rounded w-1/4" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         ) : error ? (
           <div className="bg-[#FAF5EB] border border-[#A8523B]/30 rounded-lg p-6 text-center text-[#A8523B]">
