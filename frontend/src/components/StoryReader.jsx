@@ -731,7 +731,7 @@ export default function StoryReader({
             <button
               type="button"
               onClick={() => onSelectStory(story.nextStory.slug)}
-              className="inline-flex items-center gap-2 bg-[#A8523B] hover:bg-[#93422E] text-[#FAF5EB] font-medium text-[13px] px-5 py-2.5 rounded shadow-2xs transition-colors cursor-pointer shrink-0 self-start sm:self-auto"
+              className="inline-flex items-center gap-2 bg-[#A8523B] hover:bg-[#93422E] text-[#FAF5EB] font-medium text-[13px] px-5 py-2.5 rounded shadow-2xs transition-colors cursor-pointer shrink-0 self-start sm:self-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8523B]"
             >
               <span>Continue reading</span>
               <span>→</span>

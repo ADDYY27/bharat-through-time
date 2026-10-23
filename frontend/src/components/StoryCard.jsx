@@ -1,31 +1,10 @@
 import { CATEGORY_CONFIG } from "../utils/storyTokens";
 import { formatPeriod } from "../utils/formatYear";
-import StoryCoverImage from "./StoryCoverImage";
 
 export default function StoryCard({ story, onSelectStory }) {
   const categoryConfig = CATEGORY_CONFIG[story.category] || CATEGORY_CONFIG.civilisation;
   const periodLabel = formatPeriod(story.period);
   const chapterCount = story.chapterCount ?? (story.chapters ? story.chapters.length : 0);
-
-  const badges = (
-    <div className="flex items-center justify-between gap-2">
-      <span
-        className={`text-[9.5px] uppercase font-bold tracking-wider px-2 py-0.5 rounded border shadow-2xs ${categoryConfig.tagBg} ${categoryConfig.tagText} ${categoryConfig.tagBorder}`}
-      >
-        {categoryConfig.singular}
-      </span>
-
-      <span
-        className={`text-[9.5px] px-2 py-0.5 rounded border font-medium shadow-2xs ${
-          story.onMap
-            ? "bg-[#DDE9DD] text-[#2B5433] border-[#BDD4BE] font-semibold"
-            : "bg-[#EAE0CB] text-[#7C6A52] border-[#D4BE98]"
-        }`}
-      >
-        {story.onMap ? "On map" : "Locator"}
-      </span>
-    </div>
-  );
 
   return (
     <article
@@ -41,16 +20,30 @@ export default function StoryCard({ story, onSelectStory }) {
       }}
       className="group relative flex flex-col justify-between bg-[#FAF5EB] border border-[#D4BE98] rounded-md overflow-hidden transition-all duration-200 hover:shadow-md hover:border-[#A8523B]/50 cursor-pointer text-[#34291F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8523B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F2E8D5]"
     >
-      {/* Top Image / Editorial Pigment Cover Area */}
-      <StoryCoverImage
-        slug={story.slug}
-        category={story.category}
-        title={story.title}
-        badges={badges}
-        height="h-24"
-      />
+      {/* Top Editorial Category & Status Bar */}
+      <div
+        className={`px-4 py-2.5 flex items-center justify-between border-b ${
+          categoryConfig.coverBorder || "border-[#D4BE98]"
+        } ${categoryConfig.coverBg || "bg-[#EAE0CB]"}`}
+      >
+        <span
+          className={`text-[9.5px] uppercase font-bold tracking-wider px-2 py-0.5 rounded border shadow-2xs ${categoryConfig.tagBg} ${categoryConfig.tagText} ${categoryConfig.tagBorder}`}
+        >
+          {categoryConfig.singular}
+        </span>
 
-      {/* Main Card Content */}
+        <span
+          className={`text-[9.5px] px-2 py-0.5 rounded border font-medium shadow-2xs ${
+            story.onMap
+              ? "bg-[#DDE9DD] text-[#2B5433] border-[#BDD4BE] font-semibold"
+              : "bg-[#EAE0CB] text-[#7C6A52] border-[#D4BE98]"
+          }`}
+        >
+          {story.onMap ? "On map" : "Locator"}
+        </span>
+      </div>
+
+      {/* Main Editorial Card Content */}
       <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
         <div>
           {/* Period */}
@@ -64,7 +57,7 @@ export default function StoryCard({ story, onSelectStory }) {
           </h3>
 
           {/* Deck clamped to 3 lines */}
-          <p className="text-[12.5px] text-[#7C6A52] leading-relaxed line-clamp-3 mb-4">
+          <p className="text-[12.5px] text-[#7C6A52] leading-relaxed line-clamp-3 mb-4 font-sans">
             {story.deck}
           </p>
         </div>
