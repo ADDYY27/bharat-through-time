@@ -100,6 +100,21 @@ export default function StoryReader({
     return CATEGORY_CONFIG[story.category] || CATEGORY_CONFIG.civilisation;
   }, [story]);
 
+  const resolvedNextStory = useMemo(() => {
+    if (story?.nextStory) return story.nextStory;
+    const fallbackSlug = story?.relatedStories?.[0] || "the-maurya-empire";
+    if (fallbackSlug && fallbackSlug !== story?.slug) {
+      const meta = STORY_METADATA_LOOKUP[fallbackSlug];
+      return {
+        slug: fallbackSlug,
+        title: meta?.title || "The Maurya Empire",
+        period: { label: meta?.date || "322–185 BCE" },
+        readMinutes: 8,
+      };
+    }
+    return null;
+  }, [story]);
+
   if (loading) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-16 text-[#7C6A52]">
@@ -804,27 +819,27 @@ export default function StoryReader({
         </div>
 
         {/* Row 3: Next Story Banner (Matching reference screenshot) */}
-        {story.nextStory && (
+        {resolvedNextStory && (
           <div className="mt-10 bg-[#FAF5EB] border border-[#D4BE98] rounded-lg p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-xs">
             <div>
               <span className="text-[10px] font-bold uppercase tracking-wider text-[#A8523B] block mb-1.5">
                 NEXT STORY
               </span>
               <h3 className="font-serif text-[24px] sm:text-[28px] font-bold text-[#2C241D] mb-1">
-                {story.nextStory.title}
+                {resolvedNextStory.title}
               </h3>
               <div className="flex items-center gap-2 text-[12px] text-[#7C6A52]">
                 <span className="font-semibold text-[#A8523B] tabular-nums">
-                  {formatPeriod(story.nextStory.period)}
+                  {formatPeriod(resolvedNextStory.period)}
                 </span>
                 <span>·</span>
-                <span>{story.nextStory.readMinutes} min read</span>
+                <span>{resolvedNextStory.readMinutes} min read</span>
               </div>
             </div>
 
             <button
               type="button"
-              onClick={() => onSelectStory(story.nextStory.slug)}
+              onClick={() => onSelectStory(resolvedNextStory.slug)}
               className="inline-flex items-center gap-2 bg-[#A8523B] hover:bg-[#93422E] text-[#FAF5EB] font-semibold text-[13px] px-6 py-2.5 rounded shadow-xs transition-colors cursor-pointer shrink-0 self-start sm:self-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8523B]"
             >
               <span>Continue reading</span>
