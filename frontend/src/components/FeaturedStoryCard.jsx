@@ -10,8 +10,12 @@ export default function FeaturedStoryCard({ story, onSelectStory }) {
   const chapterCount = story.chapterCount ?? (story.chapters ? story.chapters.length : 0);
 
   return (
-    <section className="bg-[#FAF5EB] border border-[#D4BE98] rounded-md p-6 sm:p-8 shadow-xs mb-8 transition-all hover:border-[#A8523B]/40">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+    <section className="bg-[#FAF5EB] border border-[#D4BE98] rounded-lg overflow-hidden shadow-xs mb-8 transition-all hover:border-[#A8523B]/40">
+      {/* Category-tinted top band */}
+      <div className={`w-full h-3 ${categoryConfig.heroBg || "bg-[#EAE0CB]"} border-b border-[#D4BE98]/40`} />
+
+      <div className="p-6 sm:p-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
         {/* Left Information Column */}
         <div className="lg:col-span-7 flex flex-col justify-between space-y-4">
           <div>
@@ -71,6 +75,7 @@ export default function FeaturedStoryCard({ story, onSelectStory }) {
             />
           </div>
         </div>
+      </div>
       </div>
     </section>
   );

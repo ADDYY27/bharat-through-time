@@ -164,15 +164,32 @@ export default function StoryReader({
         </div>
       </div>
 
-      {/* ── Story Header Hero (Full-width tinted banner) ───────────── */}
-      <header
-        className={`w-full border-b border-[#D4BE98]/70 ${
+      {/* ── Wide Category-Tinted Hero Band ─────────────────────────── */}
+      <div
+        className={`w-full h-44 sm:h-52 md:h-60 ${
           categoryConfig.heroBg || "bg-[#EAE0CB]"
-        } py-8 sm:py-10 transition-colors`}
+        } border-b border-[#D4BE98]/70 relative overflow-hidden transition-colors flex items-center justify-center`}
+        aria-hidden="true"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+        {/* Subtle decorative historical watermark */}
+        <div className="absolute inset-0 opacity-15 pointer-events-none flex items-center justify-center">
+          <svg
+            viewBox="0 0 100 100"
+            className="w-full h-full max-w-4xl text-[#34291F]"
+            fill="currentColor"
+          >
+            <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="2 2" />
+            <circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" strokeWidth="0.5" />
+            <path d="M50 0 L50 100 M0 50 L100 50" stroke="currentColor" strokeWidth="0.3" strokeDasharray="1 3" />
+          </svg>
+        </div>
+      </div>
+
+      {/* ── Overlapping Story Intro Card ───────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 -mt-20 sm:-mt-24 md:-mt-28 relative z-10 mb-8">
+        <header className="bg-[#FAF5EB] border border-[#D4BE98] rounded-lg p-6 sm:p-8 shadow-xs">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            {/* Left Column: Title, Deck, Metadata */}
+            {/* Left Column: Title, Deck, Metadata & Action Buttons */}
             <div className="lg:col-span-8">
               <div className="mb-3">
                 <span
@@ -182,7 +199,7 @@ export default function StoryReader({
                 </span>
               </div>
 
-              <h1 className="font-serif text-[32px] sm:text-[42px] lg:text-[46px] font-bold text-[#2C241D] tracking-tight leading-[1.12] mb-3">
+              <h1 className="font-serif text-[30px] sm:text-[38px] lg:text-[44px] font-bold text-[#2C241D] tracking-tight leading-[1.12] mb-3">
                 {story.title}
               </h1>
 
@@ -190,7 +207,7 @@ export default function StoryReader({
                 {story.deck}
               </p>
 
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[12.5px] text-[#7C6A52]">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[12.5px] text-[#7C6A52] mb-6">
                 <span className="font-semibold text-[#A8523B] tabular-nums">
                   {periodLabel}
                 </span>
@@ -204,6 +221,25 @@ export default function StoryReader({
                 <span>{story.readMinutes} min read</span>
                 <span className="text-[#7C6A52]/60">·</span>
                 <span>{chapterCount} chapters</span>
+              </div>
+
+              {/* Primary 'Start reading' & secondary 'Skip to chapters' */}
+              <div className="flex flex-wrap items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => scrollToChapter(1)}
+                  className="inline-flex items-center gap-2 bg-[#A8523B] hover:bg-[#93422E] text-[#FAF5EB] font-semibold text-[13px] px-5 py-2.5 rounded shadow-xs transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8523B]"
+                >
+                  <span>Start reading ↓</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => scrollToChapter(1)}
+                  className="text-[12.5px] text-[#7C6A52] hover:text-[#34291F] underline underline-offset-4 decoration-[#D4BE98] cursor-pointer font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8523B] rounded"
+                >
+                  Skip to chapters instead
+                </button>
               </div>
             </div>
 
@@ -219,8 +255,8 @@ export default function StoryReader({
               </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
+      </div>
 
       {/* ── Main Layout: 3 Columns (TOC, Content, Linked Records) ───── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-8 pt-8">
