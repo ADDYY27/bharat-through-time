@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { fetchApi } from "../utils/api";
 import { CATEGORY_CONFIG, STORY_METADATA_LOOKUP } from "../utils/storyTokens";
-import { formatPeriod } from "../utils/formatYear";
+import { formatPeriod, formatYear } from "../utils/formatYear";
 import StoryLocatorMap from "./StoryLocatorMap";
 import EntityProfileModal from "./EntityProfileModal";
 
@@ -299,6 +299,7 @@ export default function StoryReader({
               <div className="pt-3 border-t border-[#D4BE98]/70">
                 <div className="flex justify-between items-center text-[10px] text-[#7C6A52] mb-1.5">
                   <span>Reading progress</span>
+                  <span className="font-semibold text-[#A8523B] tabular-nums">{readingProgress}%</span>
                 </div>
                 <div className="w-full h-1 bg-[#D4BE98]/50 rounded-full overflow-hidden">
                   <div
@@ -307,6 +308,45 @@ export default function StoryReader({
                   />
                 </div>
               </div>
+
+              {/* Compact Historical Story Timeline in Left Rail */}
+              {story.timelineNodes && story.timelineNodes.length > 0 && (
+                <div className="pt-4 border-t border-[#D4BE98]/70 hidden lg:block">
+                  <span className="text-[9.5px] font-bold uppercase tracking-wider text-[#7C6A52] block mb-3">
+                    Story Timeline
+                  </span>
+                  <div className="relative pl-3 border-l border-[#D4BE98] space-y-2.5">
+                    {story.timelineNodes.map((node, i) => {
+                      const isActive = activeChapter === node.chapterOrder;
+                      return (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => scrollToChapter(node.chapterOrder)}
+                          className="flex items-center gap-2 group cursor-pointer text-left focus:outline-hidden"
+                        >
+                          <div
+                            className={`w-2 h-2 rounded-full border -ml-[17px] shrink-0 transition-all ${
+                              isActive
+                                ? "bg-[#A8523B] border-[#A8523B] ring-2 ring-[#A8523B]/30 scale-125"
+                                : "bg-[#FAF5EB] border-[#7C6A52] group-hover:border-[#A8523B]"
+                            }`}
+                          />
+                          <span
+                            className={`text-[11px] leading-tight transition-colors ${
+                              isActive
+                                ? "font-bold text-[#A8523B]"
+                                : "text-[#7C6A52] group-hover:text-[#34291F]"
+                            }`}
+                          >
+                            {node.label}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </aside>
 
@@ -331,9 +371,9 @@ export default function StoryReader({
               </section>
             )}
 
-            {/* Story Timeline */}
+            {/* Story Timeline (Center view on tablet/mobile) */}
             {story.timelineNodes && story.timelineNodes.length > 0 && (
-              <section className="bg-[#FAF5EB] border border-[#D4BE98] rounded-lg p-5 shadow-2xs">
+              <section className="bg-[#FAF5EB] border border-[#D4BE98] rounded-lg p-5 shadow-2xs lg:hidden">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-[#7C6A52] block mb-5">
                   Story Timeline
                 </span>
@@ -389,29 +429,31 @@ export default function StoryReader({
                 const hasKeyIdea =
                   story.keyIdea && story.keyIdea.chapterOrder === chapter.order;
                 const formattedOrder = String(chapter.order).padStart(2, "0");
+                const chapterDate = chapter.dateLabel || (chapter.year ? formatYear(chapter.year) : null);
+                const chapterEyebrow = `CHAPTER ${formattedOrder}${chapterDate ? ` · ${chapterDate}` : ""}`;
 
                 return (
                   <article
                     key={chapter.order}
                     id={`chapter-${chapter.order}`}
-                    className="scroll-mt-28"
+                    className="scroll-mt-28 border-b border-[#D4BE98]/40 pb-8 last:border-b-0"
                   >
-                    <div className="flex items-baseline gap-2.5 mb-2.5">
-                      <span className="font-serif text-[24px] sm:text-[28px] font-bold text-[#A8523B] tabular-nums leading-none shrink-0">
-                        {formattedOrder}
+                    <div className="mb-2">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#A8523B] block mb-1">
+                        {chapterEyebrow}
                       </span>
-                      <h2 className="font-serif text-[21px] sm:text-[25px] font-bold text-[#2C241D] tracking-tight leading-snug">
+                      <h2 className="font-serif text-[23px] sm:text-[27px] font-bold text-[#2C241D] tracking-tight leading-snug">
                         {chapter.heading}
                       </h2>
                     </div>
 
-                    <p className="text-[15px] sm:text-[15.5px] text-[#34291F] leading-[1.75] font-sans">
+                    <p className="text-[15.5px] sm:text-[16.5px] text-[#34291F] leading-[1.8] font-sans">
                       {chapter.body}
                     </p>
 
                     {/* Key Idea Callout if attached to this chapter */}
                     {hasKeyIdea && (
-                      <div className="border border-[#A8523B] bg-[#FAF5EB] p-4 sm:p-5 rounded-md my-6 shadow-2xs">
+                      <div className="border border-[#A8523B]/80 bg-[#FAF5EB] p-4 sm:p-5 rounded-md my-6 shadow-2xs">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-[#A8523B] block mb-1.5">
                           KEY IDEA
                         </span>
