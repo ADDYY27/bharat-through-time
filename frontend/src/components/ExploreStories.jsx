@@ -154,7 +154,7 @@ export default function ExploreStories({ onSelectStory }) {
           <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-1">
             <button
               onClick={() => setSelectedCategory("all")}
-              className={`text-[12px] sm:text-[12.5px] px-3.5 py-1.5 rounded-md border font-medium transition-all whitespace-nowrap cursor-pointer flex items-center gap-2 ${
+              className={`text-[12px] sm:text-[12.5px] px-3.5 py-1.5 rounded-md border font-medium transition-all whitespace-nowrap cursor-pointer flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8523B] ${
                 selectedCategory === "all"
                   ? "bg-[#A8523B] text-[#FAF5EB] border-[#A8523B] shadow-xs"
                   : "bg-[#FAF5EB] text-[#34291F] border-[#D4BE98] hover:bg-[#F2E8D5]"
@@ -177,7 +177,7 @@ export default function ExploreStories({ onSelectStory }) {
                 <button
                   key={catKey}
                   onClick={() => setSelectedCategory(catKey)}
-                  className={`text-[12px] sm:text-[12.5px] px-3.5 py-1.5 rounded-md border font-medium transition-all whitespace-nowrap cursor-pointer flex items-center gap-2 ${
+                  className={`text-[12px] sm:text-[12.5px] px-3.5 py-1.5 rounded-md border font-medium transition-all whitespace-nowrap cursor-pointer flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8523B] ${
                     isSelected
                       ? "bg-[#A8523B] text-[#FAF5EB] border-[#A8523B] shadow-xs"
                       : "bg-[#FAF5EB] text-[#34291F] border-[#D4BE98] hover:bg-[#F2E8D5]"
@@ -207,7 +207,7 @@ export default function ExploreStories({ onSelectStory }) {
                 <button
                   key={era.id}
                   onClick={() => setSelectedEra(era.id)}
-                  className={`text-[11.5px] px-3 py-1 rounded-full border transition-all whitespace-nowrap cursor-pointer ${
+                  className={`text-[11.5px] px-3 py-1 rounded-full border transition-all whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8523B] ${
                     isSelected
                       ? "bg-[#2E2822] text-[#FAF5EB] border-[#2E2822] font-semibold shadow-2xs"
                       : "bg-[#FAF5EB] text-[#7C6A52] border-[#D4BE98] hover:border-[#7C6A52] hover:text-[#34291F]"

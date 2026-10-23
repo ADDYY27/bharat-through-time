@@ -90,8 +90,11 @@ export default function StoryReader({
   function scrollToChapter(chapterOrder) {
     const el = document.getElementById(`chapter-${chapterOrder}`);
     if (el) {
+      const prefersReducedMotion =
+        typeof window !== "undefined" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const top = el.getBoundingClientRect().top + window.scrollY - 100;
-      window.scrollTo({ top, behavior: "smooth" });
+      window.scrollTo({ top, behavior: prefersReducedMotion ? "auto" : "smooth" });
     }
   }
 
@@ -210,13 +213,13 @@ export default function StoryReader({
         </div>
 
         {/* Center watermark icon and story subtitle matching screenshot */}
-        <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 max-w-xl mx-auto -mt-10 sm:-mt-12 opacity-80 pointer-events-none select-none">
+        <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 max-w-xl mx-auto -mt-20 sm:-mt-24 lg:-mt-28 opacity-90 pointer-events-none select-none">
           <div className="w-8 h-8 mb-2 text-[#7C6A52] flex items-center justify-center">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-7 h-7">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
             </svg>
           </div>
-          <p className="text-[12px] text-[#554332] font-medium tracking-wide">
+          <p className="text-[12px] sm:text-[12.5px] text-[#2C241D] font-semibold tracking-wide">
             {story.title} · {periodLabel}
           </p>
         </div>
@@ -280,9 +283,9 @@ export default function StoryReader({
 
       {/* ── Main Layout: Sticky Left Rail & Editorial Center Column ── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-8 pt-4">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-12 items-start">
           {/* ── Left Column: Table of Contents & Timeline Rail ───────── */}
-          <aside className="lg:col-span-3">
+          <aside className="md:col-span-4 lg:col-span-3">
             <div className="sticky top-20 flex flex-col gap-5">
               {/* Box 1: IN THIS STORY */}
               <div className="bg-[#FAF5EB] border border-[#D4BE98] rounded-lg p-4 shadow-2xs">
@@ -298,7 +301,7 @@ export default function StoryReader({
                         key={ch.order}
                         type="button"
                         onClick={() => scrollToChapter(ch.order)}
-                        className={`text-left px-2.5 py-2 rounded text-[12px] transition-all flex items-start gap-2 cursor-pointer ${
+                        className={`text-left px-2.5 py-2 rounded text-[12px] transition-all flex items-start gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8523B] ${
                           isActive
                             ? "bg-[#FAF5EB] text-[#2C241D] font-bold border-l-2 border-[#A8523B] shadow-2xs"
                             : "text-[#554332] hover:text-[#2C241D] hover:bg-[#FAF5EB]/60 font-normal"
@@ -318,9 +321,9 @@ export default function StoryReader({
                 </nav>
               </div>
 
-              {/* Box 2: STORY TIMELINE (Matching reference screenshot) */}
+              {/* Box 2: STORY TIMELINE (Matching reference screenshot, hidden on small mobile) */}
               {story.timelineNodes && story.timelineNodes.length > 0 && (
-                <div className="bg-[#FAF5EB] border border-[#D4BE98] rounded-lg p-4 shadow-2xs">
+                <div className="bg-[#FAF5EB] border border-[#D4BE98] rounded-lg p-4 shadow-2xs hidden md:block">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[#7C6A52] block mb-3.5">
                     Story Timeline
                   </span>
@@ -332,7 +335,7 @@ export default function StoryReader({
                           key={i}
                           type="button"
                           onClick={() => scrollToChapter(node.chapterOrder)}
-                          className="flex items-center gap-2 group cursor-pointer text-left focus:outline-hidden w-full"
+                          className="flex items-center gap-2 group cursor-pointer text-left w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8523B] rounded p-0.5"
                         >
                           <div
                             className={`w-2.5 h-2.5 rounded-full border -ml-[19px] shrink-0 transition-all ${
@@ -360,7 +363,7 @@ export default function StoryReader({
                       <button
                         type="button"
                         onClick={() => onExploreOnMap && onExploreOnMap(story)}
-                        className="text-[#A8523B] hover:text-[#93422E] font-medium flex items-center gap-1 cursor-pointer"
+                        className="text-[#A8523B] hover:text-[#93422E] font-medium flex items-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8523B] rounded"
                       >
                         <span>View on Historical Map (1700–1820)</span>
                         <span>→</span>
@@ -377,13 +380,15 @@ export default function StoryReader({
           </aside>
 
           {/* ── Center Column: Editorial Narrative & Contextual Figures ── */}
-          <main ref={contentRef} className="lg:col-span-9 max-w-3xl flex flex-col gap-12">
+          <main ref={contentRef} className="md:col-span-8 lg:col-span-9 max-w-3xl flex flex-col gap-12">
             {(story.chapters || []).map((chapter) => {
               const formattedOrder = String(chapter.order).padStart(2, "0");
-              const chapterDate =
-                chapter.dateLabel || (chapter.year ? formatYear(chapter.year) : null);
-              const chapterEyebrow = `CHAPTER ${formattedOrder}${chapterDate ? ` · ${chapterDate}` : ""}`;
               const isAlexStory = story.slug === "alexander-and-porus";
+              const chapterDate =
+                chapter.order === 1 && isAlexStory
+                  ? "327–326 BCE"
+                  : chapter.dateLabel || (chapter.year ? formatYear(chapter.year) : null);
+              const chapterEyebrow = `CHAPTER ${formattedOrder}${chapterDate ? ` · ${chapterDate}` : ""}`;
 
               return (
                 <article
