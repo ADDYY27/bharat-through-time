@@ -27,7 +27,7 @@ export const CATEGORY_CONFIG = {
     hex: "#A8523B",
     coverBg: "bg-[#F1DDD5]",
     coverBorder: "border-[#E5C9BF]",
-    heroBg: "bg-[#EBD8CE]",
+    heroBg: "bg-[#E6D1C4]",
     accentGlow: "rgba(168, 82, 59, 0.12)",
   },
   empire: {

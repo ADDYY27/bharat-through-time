@@ -150,29 +150,39 @@ export default function StoryReader({
               <span>← Back to Stories</span>
             </button>
             <div className="flex items-center gap-2 text-[#7C6A52] whitespace-nowrap">
-              <span>Explore</span>
-              <span className="text-[#DECDB3]">/</span>
-              <span>Stories</span>
-              <span className="text-[#DECDB3]">/</span>
-              <span className="capitalize">{categoryConfig.singular}</span>
+              <span className="uppercase text-[11px] font-semibold tracking-wider">Explore Stories</span>
               <span className="text-[#DECDB3]">/</span>
               <span className="text-[#34291F] font-medium truncate max-w-[280px]">
                 {story.title}
               </span>
             </div>
           </div>
+
+          {/* Reading progress in top breadcrumb row matching screenshot */}
+          <div className="hidden sm:flex items-center gap-2.5 text-[11px] text-[#7C6A52] shrink-0">
+            <span>Reading progress</span>
+            <div className="w-24 sm:w-28 h-1.5 bg-[#D4BE98]/60 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-[#A8523B] transition-all duration-150 rounded-full"
+                style={{ width: `${readingProgress}%` }}
+              />
+            </div>
+            <span className="font-semibold text-[#A8523B] tabular-nums min-w-[28px] text-right">
+              {readingProgress}%
+            </span>
+          </div>
         </div>
       </div>
 
       {/* ── Wide Category-Tinted Hero Band ─────────────────────────── */}
       <div
-        className={`w-full h-44 sm:h-52 md:h-60 ${
-          categoryConfig.heroBg || "bg-[#EAE0CB]"
+        className={`w-full h-60 sm:h-72 lg:h-80 ${
+          categoryConfig.heroBg || "bg-[#E6D1C4]"
         } border-b border-[#D4BE98]/70 relative overflow-hidden transition-colors flex items-center justify-center`}
         aria-hidden="true"
       >
         {/* Subtle decorative historical watermark */}
-        <div className="absolute inset-0 opacity-15 pointer-events-none flex items-center justify-center">
+        <div className="absolute inset-0 opacity-10 pointer-events-none flex items-center justify-center">
           <svg
             viewBox="0 0 100 100"
             className="w-full h-full max-w-4xl text-[#34291F]"
@@ -183,77 +193,72 @@ export default function StoryReader({
             <path d="M50 0 L50 100 M0 50 L100 50" stroke="currentColor" strokeWidth="0.3" strokeDasharray="1 3" />
           </svg>
         </div>
+
+        {/* Center watermark icon and story subtitle matching screenshot */}
+        <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 max-w-xl mx-auto -mt-10 sm:-mt-12 opacity-80 pointer-events-none select-none">
+          <div className="w-8 h-8 mb-2 text-[#7C6A52] flex items-center justify-center">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-7 h-7">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+            </svg>
+          </div>
+          <p className="text-[12px] text-[#554332] font-medium tracking-wide">
+            {story.title} · {periodLabel}
+          </p>
+        </div>
       </div>
 
       {/* ── Overlapping Story Intro Card ───────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 -mt-20 sm:-mt-24 md:-mt-28 relative z-10 mb-8">
-        <header className="bg-[#FAF5EB] border border-[#D4BE98] rounded-lg p-6 sm:p-8 shadow-xs">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            {/* Left Column: Title, Deck, Metadata & Action Buttons */}
-            <div className="lg:col-span-8">
-              <div className="mb-3">
-                <span
-                  className={`inline-block text-[10px] uppercase font-bold px-2 py-0.5 rounded border tracking-wider ${categoryConfig.tagBg} ${categoryConfig.tagText} ${categoryConfig.tagBorder}`}
-                >
-                  {categoryConfig.singular}
-                </span>
-              </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 -mt-24 sm:-mt-28 lg:-mt-32 relative z-10 mb-10">
+        <header className="max-w-3xl lg:max-w-4xl bg-[#FAF5EB] border border-[#D4BE98] rounded-lg p-6 sm:p-8 lg:p-9 shadow-xs">
+          <div className="mb-3.5">
+            <span
+              className={`inline-block text-[10px] uppercase font-bold px-2.5 py-0.5 rounded border tracking-wider ${categoryConfig.tagBg} ${categoryConfig.tagText} ${categoryConfig.tagBorder}`}
+            >
+              {categoryConfig.singular}
+            </span>
+          </div>
 
-              <h1 className="font-serif text-[30px] sm:text-[38px] lg:text-[44px] font-bold text-[#2C241D] tracking-tight leading-[1.12] mb-3">
-                {story.title}
-              </h1>
+          <h1 className="font-serif text-[32px] sm:text-[40px] lg:text-[46px] font-bold text-[#2C241D] tracking-tight leading-[1.12] mb-3.5">
+            {story.title}
+          </h1>
 
-              <p className="text-[15px] sm:text-[16px] text-[#4E3E2E] leading-relaxed mb-5 max-w-2xl font-sans">
-                {story.deck}
-              </p>
+          <p className="text-[15px] sm:text-[16px] text-[#4E3E2E] leading-relaxed mb-5 max-w-2xl font-sans">
+            {story.deck}
+          </p>
 
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[12.5px] text-[#7C6A52] mb-6">
-                <span className="font-semibold text-[#A8523B] tabular-nums">
-                  {periodLabel}
-                </span>
-                {story.region && (
-                  <>
-                    <span className="text-[#7C6A52]/60">·</span>
-                    <span>{story.region}</span>
-                  </>
-                )}
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[12.5px] text-[#7C6A52] mb-6">
+            <span className="font-semibold text-[#A8523B] tabular-nums">
+              {periodLabel}
+            </span>
+            {story.region && (
+              <>
                 <span className="text-[#7C6A52]/60">·</span>
-                <span>{story.readMinutes} min read</span>
-                <span className="text-[#7C6A52]/60">·</span>
-                <span>{chapterCount} chapters</span>
-              </div>
+                <span>{story.region}</span>
+              </>
+            )}
+            <span className="text-[#7C6A52]/60">·</span>
+            <span>{story.readMinutes} min read</span>
+            <span className="text-[#7C6A52]/60">·</span>
+            <span>{chapterCount} chapters</span>
+          </div>
 
-              {/* Primary 'Start reading' & secondary 'Skip to chapters' */}
-              <div className="flex flex-wrap items-center gap-4">
-                <button
-                  type="button"
-                  onClick={() => scrollToChapter(1)}
-                  className="inline-flex items-center gap-2 bg-[#A8523B] hover:bg-[#93422E] text-[#FAF5EB] font-semibold text-[13px] px-5 py-2.5 rounded shadow-xs transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8523B]"
-                >
-                  <span>Start reading ↓</span>
-                </button>
+          {/* Primary 'Start reading' & secondary 'Skip to chapters' */}
+          <div className="flex flex-wrap items-center gap-4">
+            <button
+              type="button"
+              onClick={() => scrollToChapter(1)}
+              className="inline-flex items-center gap-2 bg-[#A8523B] hover:bg-[#93422E] text-[#FAF5EB] font-semibold text-[13px] px-5 py-2.5 rounded shadow-xs transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8523B]"
+            >
+              <span>Start reading ↓</span>
+            </button>
 
-                <button
-                  type="button"
-                  onClick={() => scrollToChapter(1)}
-                  className="text-[12.5px] text-[#7C6A52] hover:text-[#34291F] underline underline-offset-4 decoration-[#D4BE98] cursor-pointer font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8523B] rounded"
-                >
-                  Skip to chapters instead
-                </button>
-              </div>
-            </div>
-
-            {/* Right Column: Locator Map Card */}
-            <div className="lg:col-span-4 flex justify-center lg:justify-end">
-              <div className="w-full max-w-sm">
-                <StoryLocatorMap
-                  locator={story.locator}
-                  regionLabel={story.region}
-                  category={story.category}
-                  onMap={story.onMap}
-                />
-              </div>
-            </div>
+            <button
+              type="button"
+              onClick={() => scrollToChapter(1)}
+              className="text-[12.5px] text-[#7C6A52] hover:text-[#34291F] underline underline-offset-4 decoration-[#D4BE98] cursor-pointer font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8523B] rounded"
+            >
+              Skip to the chapters instead
+            </button>
           </div>
         </header>
       </div>
