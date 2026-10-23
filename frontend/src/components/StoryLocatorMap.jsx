@@ -60,6 +60,7 @@ export default function StoryLocatorMap({
   onMap = false,
   className = "",
   compact = false,
+  hideDisclaimer = false,
 }) {
   const width = compact ? 240 : 320;
   const height = compact ? 170 : 230;
@@ -182,9 +183,11 @@ export default function StoryLocatorMap({
         </svg>
       </div>
 
-      <span className="text-[10px] text-[#7C6A52] italic mt-1.5 text-center font-normal tracking-tight">
-        {onMap ? "On map — 1700–1820 atlas range" : "Locator map — outside the 1700 – 1820 atlas range"}
-      </span>
+      {!hideDisclaimer && (
+        <span className="text-[10px] text-[#7C6A52] italic mt-1.5 text-center font-normal tracking-tight">
+          {onMap ? "On map — 1700–1820 atlas range" : "Locator map — outside the 1700 – 1820 atlas range"}
+        </span>
+      )}
     </div>
   );
 }

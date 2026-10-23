@@ -423,6 +423,7 @@ export default function StoryReader({
                           regionLabel={story.region}
                           category={story.category}
                           onMap={story.onMap}
+                          hideDisclaimer={true}
                           className="border-0 shadow-none bg-transparent p-0"
                         />
                         <div className="absolute bottom-2 left-3 bg-[#FAF5EB]/90 backdrop-blur-xs px-2 py-0.5 rounded border border-[#D4BE98] text-[9.5px] font-medium text-[#554332]">
@@ -586,6 +587,9 @@ export default function StoryReader({
                   return (
                     <div
                       key={idx}
+                      tabIndex={hasEntity ? 0 : undefined}
+                      role={hasEntity ? "button" : undefined}
+                      aria-label={hasEntity ? `View details for place: ${place.name}` : undefined}
                       onClick={() => {
                         if (hasEntity) {
                           setSelectedEntityModal({
@@ -595,9 +599,19 @@ export default function StoryReader({
                           });
                         }
                       }}
+                      onKeyDown={(e) => {
+                        if (hasEntity && (e.key === "Enter" || e.key === " ")) {
+                          e.preventDefault();
+                          setSelectedEntityModal({
+                            kind: "place",
+                            id: place.entityId._id || place.entityId,
+                            label: place.name,
+                          });
+                        }
+                      }}
                       className={`flex items-center justify-between p-2.5 rounded bg-[#FAF5EB] border border-[#D4BE98] text-left transition-colors ${
                         hasEntity
-                          ? "hover:bg-[#F2E8D5] cursor-pointer group"
+                          ? "hover:bg-[#F2E8D5] cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8523B]"
                           : "cursor-default"
                       }`}
                     >
