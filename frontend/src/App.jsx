@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import HistoryMap from "./components/HistoryMap";
 import Sidebar from "./components/Sidebar";
-import CompareView from "./components/CompareView";
-import StoryView from "./components/StoryView";
-import ExploreView from "./components/ExploreView";
+
+const CompareView = lazy(() => import("./components/CompareView"));
+const StoryView = lazy(() => import("./components/StoryView"));
+const ExploreView = lazy(() => import("./components/ExploreView"));
 
 const MIN_YEAR = 1700;
 const MAX_YEAR = 1820;
@@ -19,6 +20,19 @@ const ERA_MILESTONES = [
   { label: "Sikh Empire", year: 1805, start: 1799, end: 1820 },
   { label: "1820", year: 1820, isYear: true },
 ];
+
+function ViewLoadingFallback({ label = "Loading view..." }) {
+  return (
+    <div className="flex-1 flex items-center justify-center bg-[#F5EEDB] min-h-[400px]">
+      <div className="flex flex-col items-center gap-3 text-center">
+        <div className="w-8 h-8 rounded-full border-2 border-[#D4BE98] border-t-[#A8523B] animate-spin" />
+        <span className="text-xs uppercase tracking-wider text-[#7C6A52] font-medium font-sans">
+          {label}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 function App() {
   const [year, setYear] = useState(1780);
@@ -328,53 +342,59 @@ function App() {
       </header>
 
       {isCompareMode ? (
-        <CompareView initialYearA={compareYearA} initialYearB={compareYearB} />
+        <Suspense fallback={<ViewLoadingFallback label="Loading Comparison..." />}>
+          <CompareView initialYearA={compareYearA} initialYearB={compareYearB} />
+        </Suspense>
       ) : activeTab === "story" ? (
-        <StoryView
-          currentYear={year}
-          onYearChange={setYear}
-          onCompareJump={handleCompareJump}
-        />
+        <Suspense fallback={<ViewLoadingFallback label="Loading Story Mode..." />}>
+          <StoryView
+            currentYear={year}
+            onYearChange={setYear}
+            onCompareJump={handleCompareJump}
+          />
+        </Suspense>
       ) : activeTab === "explore" ? (
-        <ExploreView
-          initialMode={exploreSubMode}
-          initialSlug={exploreStorySlug}
-          onModeChange={(subMode, slug) => {
-            setExploreSubMode(subMode);
-            setExploreStorySlug(slug);
-          }}
-          onExploreOnMap={(item, coords, jumpYear) => {
-            const targetYear = jumpYear || item.jumpYear;
-            if (targetYear) setYear(targetYear);
+        <Suspense fallback={<ViewLoadingFallback label="Loading Stories & Records..." />}>
+          <ExploreView
+            initialMode={exploreSubMode}
+            initialSlug={exploreStorySlug}
+            onModeChange={(subMode, slug) => {
+              setExploreSubMode(subMode);
+              setExploreStorySlug(slug);
+            }}
+            onExploreOnMap={(item, coords, jumpYear) => {
+              const targetYear = jumpYear || item.jumpYear;
+              if (targetYear) setYear(targetYear);
 
-            let center = null;
-            const rawCoords = coords || item.placeData?.location?.coordinates;
-            if (rawCoords && Array.isArray(rawCoords) && rawCoords.length === 2) {
-              // Convert GeoJSON [lng, lat] to Leaflet [lat, lng]
-              if (rawCoords[0] > 50 && rawCoords[1] < 50) {
-                center = [rawCoords[1], rawCoords[0]];
-              } else {
-                center = rawCoords;
+              let center = null;
+              const rawCoords = coords || item.placeData?.location?.coordinates;
+              if (rawCoords && Array.isArray(rawCoords) && rawCoords.length === 2) {
+                // Convert GeoJSON [lng, lat] to Leaflet [lat, lng]
+                if (rawCoords[0] > 50 && rawCoords[1] < 50) {
+                  center = [rawCoords[1], rawCoords[0]];
+                } else {
+                  center = rawCoords;
+                }
               }
-            }
-            if (center) {
-              setMapFlyTo({ center, zoom: 7, ts: Date.now() });
-            }
+              if (center) {
+                setMapFlyTo({ center, zoom: 7, ts: Date.now() });
+              }
 
-            if (item.kind === "polity") {
-              selectPolity(item.id || item.polityId);
-            } else if (item.kind === "ruler") {
-              selectRuler({ jumpYear: targetYear, polityId: item.polityId, ruler: item.ruler });
-            } else if (item.kind === "event") {
-              navigateTo({ kind: "event", data: item.event || item });
-            } else if (item.kind === "place") {
-              navigateTo({ kind: "place", data: item.placeData || item });
-            }
-            setActiveTab("map");
-            setMobilePanel("map");
-            window.history.pushState(null, "", "/");
-          }}
-        />
+              if (item.kind === "polity") {
+                selectPolity(item.id || item.polityId);
+              } else if (item.kind === "ruler") {
+                selectRuler({ jumpYear: targetYear, polityId: item.polityId, ruler: item.ruler });
+              } else if (item.kind === "event") {
+                navigateTo({ kind: "event", data: item.event || item });
+              } else if (item.kind === "place") {
+                navigateTo({ kind: "place", data: item.placeData || item });
+              }
+              setActiveTab("map");
+              setMobilePanel("map");
+              window.history.pushState(null, "", "/");
+            }}
+          />
+        </Suspense>
       ) : (
         <main className="flex-1 flex flex-col md:flex-row overflow-hidden relative min-h-0">
           {/* Map canvas */}
