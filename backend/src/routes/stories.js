@@ -29,7 +29,7 @@ function getEraRange(era) {
 
 // ── GET /api/stories/counts ──────────────────────────────────────────────────
 // Returns counts by category and era for filter chips (published only)
-router.get("/counts", async (req, res) => {
+router.get("/counts", async (req, res, next) => {
   try {
     const publishedFilter = { status: "published" };
 
@@ -64,13 +64,13 @@ router.get("/counts", async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
 // ── GET /api/stories ─────────────────────────────────────────────────────────
 // Lightweight cards without chapter bodies (published only)
-router.get("/", async (req, res) => {
+router.get("/", async (req, res, next) => {
   try {
     const { category, era, q, sort = "chronological", page = 1, limit = 12 } = req.query;
 
@@ -169,13 +169,13 @@ router.get("/", async (req, res) => {
       totalPages: Math.ceil(total / limitNum) || 1,
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
 // ── GET /api/stories/:slug ───────────────────────────────────────────────────
 // Full story detail with chapters, timelineNodes, sources, populated entities
-router.get("/:slug", async (req, res) => {
+router.get("/:slug", async (req, res, next) => {
   try {
     const { slug } = req.params;
 
@@ -205,7 +205,7 @@ router.get("/:slug", async (req, res) => {
 
     res.json(storyObj);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 

@@ -46,6 +46,31 @@ app.use("/api/history", historyRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/stories", storiesRoutes);
 
+// ── 404 JSON Fallback for Unmatched API Endpoints ───────────────────────────
+app.all("/api/*", (req, res) => {
+  res.status(404).json({ error: `Cannot ${req.method} ${req.originalUrl}` });
+});
+
+// ── Centralized API Error-Handling Middleware ───────────────────────────────
+app.use((err, req, res, _next) => {
+  if (err.name === "CastError") {
+    return res.status(400).json({ error: "Invalid resource identifier format" });
+  }
+
+  if (err.status === 400 && err.type === "entity.parse.failed") {
+    return res.status(400).json({ error: "Malformed JSON payload" });
+  }
+
+  const statusCode = err.status || err.statusCode || 500;
+  const isProd = process.env.NODE_ENV === "production";
+  const message =
+    isProd && statusCode === 500
+      ? "Internal server error"
+      : err.message || "Internal server error";
+
+  res.status(statusCode).json({ error: message });
+});
+
 const PORT = process.env.PORT || 5000;
 
 connectDB().then(() => {

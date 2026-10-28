@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose from "mongoose";
 import Territory from "../models/Territory.js";
 import Polity from "../models/Polity.js";
 import Ruler from "../models/Ruler.js";
@@ -8,10 +9,17 @@ import Source from "../models/Source.js";
 
 const router = express.Router();
 
+function isValidId(id) {
+  return mongoose.Types.ObjectId.isValid(id);
+}
+
 // ── Entity-by-id detail routes ──────────────────────────────────────────────
 
 // GET /api/history/event/:id
-router.get("/event/:id", async (req, res) => {
+router.get("/event/:id", async (req, res, next) => {
+  if (!isValidId(req.params.id)) {
+    return res.status(400).json({ error: "Invalid event ID format" });
+  }
   try {
     const event = await Event.findById(req.params.id)
       .populate("polities", "name colorHex type")
@@ -25,12 +33,15 @@ router.get("/event/:id", async (req, res) => {
     if (!event) return res.status(404).json({ error: "Event not found" });
     res.json(event);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
 // GET /api/history/place/:id — includes reverse lookup: events at this place
-router.get("/place/:id", async (req, res) => {
+router.get("/place/:id", async (req, res, next) => {
+  if (!isValidId(req.params.id)) {
+    return res.status(400).json({ error: "Invalid place ID format" });
+  }
   try {
     const place = await Place.findById(req.params.id)
       .populate("polities", "name colorHex type")
@@ -48,12 +59,15 @@ router.get("/place/:id", async (req, res) => {
 
     res.json({ place, events, rulers });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
 // GET /api/history/ruler/:id — includes reverse lookup: events featuring this ruler
-router.get("/ruler/:id", async (req, res) => {
+router.get("/ruler/:id", async (req, res, next) => {
+  if (!isValidId(req.params.id)) {
+    return res.status(400).json({ error: "Invalid ruler ID format" });
+  }
   try {
     const ruler = await Ruler.findById(req.params.id)
       .populate("polity", "name colorHex type period")
@@ -68,12 +82,15 @@ router.get("/ruler/:id", async (req, res) => {
 
     res.json({ ruler, events });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
 // GET /api/history/polity/:id — polity detail with related data
-router.get("/polity/:id", async (req, res) => {
+router.get("/polity/:id", async (req, res, next) => {
+  if (!isValidId(req.params.id)) {
+    return res.status(400).json({ error: "Invalid polity ID format" });
+  }
   try {
     const polity = await Polity.findById(req.params.id)
       .populate("capital", "name type location modernState")
@@ -97,7 +114,7 @@ router.get("/polity/:id", async (req, res) => {
 
     res.json({ polity, rulers, events, territories });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
@@ -105,7 +122,7 @@ router.get("/polity/:id", async (req, res) => {
 
 // GET /api/history/:year/overview — lightweight summary for Year Overview panel
 // Must be registered BEFORE /:year to avoid route conflict.
-router.get("/:year/overview", async (req, res) => {
+router.get("/:year/overview", async (req, res, next) => {
   const year = parseInt(req.params.year, 10);
   if (isNaN(year)) return res.status(400).json({ error: "Invalid year" });
 
@@ -169,12 +186,12 @@ router.get("/:year/overview", async (req, res) => {
       events,
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
 // GET /api/history/:year
-router.get("/:year", async (req, res) => {
+router.get("/:year", async (req, res, next) => {
   const year = parseInt(req.params.year, 10);
   if (isNaN(year)) return res.status(400).json({ error: "Invalid year" });
 
@@ -211,7 +228,7 @@ router.get("/:year", async (req, res) => {
 
     res.json({ year, territories, rulers, events, places });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 

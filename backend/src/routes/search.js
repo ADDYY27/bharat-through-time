@@ -7,7 +7,7 @@ import Event from "../models/Event.js";
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/", async (req, res, next) => {
   try {
     const [polities, rulers, places, events] = await Promise.all([
       Polity.find({}, "name type period capital colorHex").populate("capital", "name"),
@@ -124,7 +124,7 @@ router.get("/", async (req, res) => {
 
     res.json({ results });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 });
 
