@@ -15,6 +15,7 @@ export default function StoryReader({
   const [story, setStory] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [retryKey, setRetryKey] = useState(0);
 
   // Active chapter for scroll-spy
   const [activeChapter, setActiveChapter] = useState(1);
@@ -51,7 +52,7 @@ export default function StoryReader({
     return () => {
       isMounted = false;
     };
-  }, [slug]);
+  }, [slug, retryKey]);
 
   // Scroll spy & reading progress calculation
   useEffect(() => {
@@ -128,20 +129,34 @@ export default function StoryReader({
   }
 
   if (error || !story) {
+    const isNotFound = error && error.toLowerCase().includes("not found");
     return (
       <div className="max-w-4xl mx-auto px-4 py-16 text-center">
         <h2 className="font-serif text-[24px] font-bold text-[#A8523B] mb-2">
-          Story Not Found
+          {isNotFound ? "Story Not Found" : "Unable to Load Narrative"}
         </h2>
-        <p className="text-[14px] text-[#7C6A52] mb-6">
+        <p className="text-[14px] text-[#7C6A52] mb-6 max-w-md mx-auto">
           {error || "The requested historical narrative could not be retrieved."}
         </p>
-        <button
-          onClick={onBackToStories}
-          className="inline-flex items-center gap-1.5 bg-[#A8523B] text-[#FAF5EB] px-4 py-2 rounded text-[13px] font-medium hover:bg-[#93422E] transition-colors cursor-pointer"
-        >
-          ← Back to Stories
-        </button>
+        <div className="inline-flex items-center justify-center gap-3">
+          {!isNotFound && (
+            <button
+              type="button"
+              onClick={() => setRetryKey((k) => k + 1)}
+              className="inline-flex items-center gap-1.5 bg-[#A8523B] text-[#FAF5EB] px-4 py-2 rounded text-[13px] font-medium hover:bg-[#93422E] transition-colors cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8523B]"
+            >
+              <span>↺</span>
+              <span>Try Again</span>
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onBackToStories}
+            className="inline-flex items-center gap-1.5 bg-[#FAF5EB] border border-[#D4BE98] text-[#34291F] px-4 py-2 rounded text-[13px] font-medium hover:bg-[#F2E8D5] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8523B]"
+          >
+            ← Back to Stories
+          </button>
+        </div>
       </div>
     );
   }

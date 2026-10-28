@@ -53,11 +53,15 @@ function App() {
       const path = window.location.pathname;
       const search = new URLSearchParams(window.location.search);
 
-      if (path.startsWith("/explore/stories/")) {
-        const slug = path.replace("/explore/stories/", "").split("/")[0].trim();
+      if (path.startsWith("/explore/stories/") || path.startsWith("/stories/")) {
+        const slug = path.replace(/^\/(explore\/stories|stories)\//, "").split("/")[0].trim();
         setActiveTab("explore");
         setExploreSubMode("stories");
         setExploreStorySlug(slug || null);
+      } else if (path === "/stories") {
+        setActiveTab("explore");
+        setExploreSubMode("stories");
+        setExploreStorySlug(null);
       } else if (path.startsWith("/explore")) {
         setActiveTab("explore");
         const mode = search.get("mode") === "stories" ? "stories" : "records";

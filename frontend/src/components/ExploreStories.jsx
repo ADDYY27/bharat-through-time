@@ -19,6 +19,7 @@ export default function ExploreStories({ onSelectStory }) {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   // Filters state
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -84,7 +85,7 @@ export default function ExploreStories({ onSelectStory }) {
     return () => {
       isMounted = false;
     };
-  }, [selectedCategory, selectedEra, debouncedQuery, sortBy]);
+  }, [selectedCategory, selectedEra, debouncedQuery, sortBy, reloadKey]);
 
   // Determine featured story: first published story chronologically
   const featuredStory = useMemo(() => {
@@ -271,15 +272,35 @@ export default function ExploreStories({ onSelectStory }) {
             </div>
           </div>
         ) : error ? (
-          <div className="bg-[#FAF5EB] border border-[#A8523B]/30 rounded-lg p-6 text-center text-[#A8523B]">
-            <p className="font-semibold text-[14px] mb-1">Failed to load stories</p>
-            <p className="text-[12.5px] text-[#7C6A52] mb-3">{error}</p>
-            <button
-              onClick={() => setSelectedCategory("all")}
-              className="text-[12px] font-medium underline cursor-pointer"
-            >
-              Reset filters
-            </button>
+          <div className="bg-[#FAF5EB] border border-[#A8523B]/30 rounded-lg p-8 text-center text-[#A8523B] max-w-md mx-auto shadow-2xs">
+            <div className="w-10 h-10 mx-auto mb-3 rounded-full bg-[#EAE0CB] text-[#A8523B] flex items-center justify-center text-lg select-none">
+              ⚠️
+            </div>
+            <p className="font-semibold text-[15px] mb-1">Failed to load stories</p>
+            <p className="text-[12.5px] text-[#7C6A52] mb-4">{error}</p>
+            <div className="flex items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setReloadKey((k) => k + 1)}
+                className="px-4 py-2 rounded bg-[#A8523B] text-[#FAF5EB] text-[12px] font-medium hover:bg-[#93422E] transition-colors cursor-pointer shadow-xs inline-flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8523B]"
+              >
+                <span>↺</span>
+                <span>Try again</span>
+              </button>
+              {(selectedCategory !== "all" || selectedEra !== "all" || searchQuery) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedCategory("all");
+                    setSelectedEra("all");
+                    setSearchQuery("");
+                  }}
+                  className="px-4 py-2 rounded border border-[#D4BE98] bg-[#FAF5EB] text-[#34291F] text-[12px] font-medium hover:bg-[#F2E8D5] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A8523B]"
+                >
+                  Reset filters
+                </button>
+              )}
+            </div>
           </div>
         ) : stories.length === 0 ? (
           <div className="bg-[#FAF5EB] border border-[#D4BE98] rounded-lg p-10 text-center text-[#7C6A52] max-w-xl mx-auto shadow-2xs">
