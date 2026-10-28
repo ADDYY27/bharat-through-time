@@ -7,7 +7,8 @@
 function resolveApiBase() {
   const envUrl = import.meta.env.VITE_API_URL?.trim();
   if (!envUrl) {
-    return "http://localhost:5000/api";
+    // In production, fallback to relative /api to support reverse proxy and prevent Mixed Content on HTTPS
+    return import.meta.env.PROD ? "/api" : "http://localhost:5000/api";
   }
 
   // Strip trailing slash
